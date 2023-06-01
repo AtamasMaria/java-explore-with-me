@@ -11,12 +11,12 @@ import ru.practicum.server.model.ViewStats;
 import ru.practicum.server.repository.StatsRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StatsServiceImpl implements StatsService {
     private final StatsRepository repository;
 
@@ -27,27 +27,24 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<ViewStatsDto> get(String start, String end, List<String> uris, boolean unique) {
-        LocalDateTime startTime = LocalDateTime.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        LocalDateTime endTime = LocalDateTime.parse(end, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
+    public List<ViewStatsDto> get(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         if (unique) {
-            List<ViewStats> statsListUnique = repository.getUnique(startTime, endTime, uris);
-            return toDto(statsListUnique);
+            if (!uris.isEmpty()) {
+                return listToDto(repository.getAllUniqueEndpointHitByUriIn(start, end, uris));
+            }
+            return listToDto(repository.getAllUniqueEndpointHit(start, end));
         } else {
-            List<ViewStats> statsList = repository.get(startTime, endTime, uris);
-            return toDto(statsList);
+            if (!uris.isEmpty()) {
+                return listToDto(repository.getAllEndpointHitsByUriIn(start, end, uris));
+            }
+            return listToDto(repository.getAllEndpointHit(start, end));
         }
     }
 
-    private List<ViewStatsDto> toDto(List<ViewStats> list) {
-        if (!list.isEmpty()) {
+    private List<ViewStatsDto> listToDto(List<ViewStats> list) {
             return list.stream()
                     .map(ViewStatsMapper::toViewStatsDto)
                     .collect(Collectors.toList());
-        } else {
-            return List.of();
-        }
     }
 }
 

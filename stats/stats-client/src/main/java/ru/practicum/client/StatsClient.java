@@ -10,7 +10,6 @@ import ru.practicum.dto.ViewStatsDto;
 import java.util.Collections;
 import java.util.List;
 
-
 @RequiredArgsConstructor
 public class StatsClient {
     private final WebClient webClient;
@@ -40,5 +39,4 @@ public class StatsClient {
                 .bodyToMono(ViewStatsDto.class)
                 .block());
     }
-
 }

@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.persistence.*;
-
 import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.IDENTITY;
-
 
 @Entity
 @Table(name = "stats")
