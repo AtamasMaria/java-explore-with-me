@@ -42,9 +42,9 @@ public class StatsServiceImpl implements StatsService {
     }
 
     private List<ViewStatsDto> listToDto(List<ViewStats> list) {
-            return list.stream()
-                    .map(ViewStatsMapper::toViewStatsDto)
-                    .collect(Collectors.toList());
+        return list.stream()
+                .map(ViewStatsMapper::toViewStatsDto)
+                .collect(Collectors.toList());
     }
 }
 

@@ -15,7 +15,7 @@ public interface StatsRepository extends JpaRepository<EndpointHit, Long> {
             "WHERE eh.timestamp BETWEEN :start AND :end " +
             "AND eh.uri in :uris " +
             "GROUP BY eh.app, eh.uri " +
-            "ORDER BY count (eh.ip) DESC")
+            "ORDER BY count (eh.ip) DESC ")
     List<ViewStats> getAllEndpointHitsByUriIn(@Param("start") LocalDateTime start,
                                               @Param("end") LocalDateTime end,
                                               @Param("uris") List<String> uris);
