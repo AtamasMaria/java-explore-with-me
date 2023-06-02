@@ -1,6 +1,5 @@
 package ru.practicum.server.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.persistence.*;
