@@ -7,7 +7,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import ru.practicum.dto.EndpointHitDto;
 import ru.practicum.dto.ViewStatsDto;
 
-import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
