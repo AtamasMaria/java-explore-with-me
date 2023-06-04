@@ -19,9 +19,9 @@ public class StatsController {
     private final StatsService service;
 
     @PostMapping("/hit")
-    public void create(@RequestBody @Valid EndpointHitDto endpointHitDto) {
+    public EndpointHitDto create(@RequestBody @Valid EndpointHitDto endpointHitDto) {
         log.debug("Saving hit {}", endpointHitDto.getApp());
-        service.create(endpointHitDto);
+        return service.create(endpointHitDto);
     }
 
     @GetMapping("/stats")
@@ -29,7 +29,7 @@ public class StatsController {
                                   @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                   @RequestParam(required = false) List<String> uris,
                                   @RequestParam(defaultValue = "false") boolean unique) {
-        log.debug("Getting stats");
+        log.info("Getting hits from stats service with start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         return service.get(start, end, uris, unique);
     }
 }

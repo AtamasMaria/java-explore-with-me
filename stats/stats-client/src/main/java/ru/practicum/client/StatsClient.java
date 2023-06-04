@@ -26,7 +26,7 @@ public class StatsClient {
     }
 
     public List<ViewStatsDto> getStats(String start, String end, List<String> uris, boolean unique) {
-        return Collections.singletonList(webClient
+        return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
@@ -36,7 +36,8 @@ public class StatsClient {
                         .queryParam("unique", "{unique}")
                         .build())
                 .retrieve()
-                .bodyToMono(ViewStatsDto.class)
-                .block());
+                .bodyToFlux(ViewStatsDto.class)
+                .collectList()
+                .block();
     }
 }
