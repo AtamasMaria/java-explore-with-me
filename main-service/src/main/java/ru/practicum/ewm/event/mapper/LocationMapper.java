@@ -8,7 +8,7 @@ public class LocationMapper {
         return LocationDto.builder().lon(location.getLon()).lat(location.getLat()).build();
     }
 
-    public static Location toLocation(LocationDto locationDto){
+    public static Location toLocation(LocationDto locationDto) {
         return Location.builder().lon(locationDto.getLon()).lat(locationDto.getLat()).build();
     }
 }

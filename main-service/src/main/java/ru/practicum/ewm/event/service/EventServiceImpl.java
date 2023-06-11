@@ -227,8 +227,8 @@ public class EventServiceImpl implements EventService {
         checkUserExist(userId);
         List<Event> events = eventRepository.getAllByInitiatorId(userId, page).toList();
         return events.stream()
-                .map(EventMapper::toEventDto).
-                collect(Collectors.toList());
+                .map(EventMapper::toEventDto)
+                .collect(Collectors.toList());
     }
 
     @Override
