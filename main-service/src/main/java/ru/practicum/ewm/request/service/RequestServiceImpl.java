@@ -43,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
         checkUserExists(userId);
         Event event = getEventById(eventId);
 
-        if (!event.getRequestModeration() || event.getParticipantLimit().equals(0L)) {
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             throw new ConflictException("Подтверждение заявок не требуется.");
         }
         List<Long> requestsId = updateDto.getRequestIds();
