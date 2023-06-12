@@ -21,7 +21,7 @@ public class EventDto {
     @Size(min = 20, max = 2000)
     private String annotation;
     private CategoryDto category;
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
     @Size(min = 20, max = 7000)
@@ -33,7 +33,7 @@ public class EventDto {
     @NotNull
     private Boolean paid;
     @PositiveOrZero
-    private int participantLimit;
+    private Long participantLimit;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
     private Boolean requestModeration;

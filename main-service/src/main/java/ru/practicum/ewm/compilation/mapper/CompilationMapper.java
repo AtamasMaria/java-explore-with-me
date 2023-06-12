@@ -6,8 +6,8 @@ import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CompilationMapper {
@@ -22,8 +22,8 @@ public class CompilationMapper {
                 .build();
     }
 
-    public static Compilation mapCompilationDtoToCompilation(NewCompilationDto newCompilationDto, List<Event> events) {
-        List<Event> eventSet = new ArrayList<>();
+    public static Compilation newCompilationDtoToCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
+        Set<Event> eventSet = new HashSet<>();
         for (Long eventId : newCompilationDto.getEvents()) {
             for (Event event : events) {
                 if (event.getId().equals(eventId)) {

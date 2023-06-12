@@ -18,42 +18,35 @@ import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
     private final CompilationRepository compilationRepository;
-    private final CompilationMapper compilationMapper;
 
     @Override
-    @Transactional
     public CompilationDto create(NewCompilationDto compilationDto) {
         if (compilationDto.getEvents() == null || compilationDto.getEvents().isEmpty()) {
-            Compilation compilation = CompilationMapper.mapCompilationDtoToCompilation(compilationDto, new ArrayList<>());
-            return compilationMapper.toCompilationDto(compilationRepository.save(compilation));
+            Compilation compilation = CompilationMapper.newCompilationDtoToCompilation(compilationDto, new HashSet<>());
+            return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
         }
-        List<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
-        if (compilationDto.getEvents().size() != events.size()) {
-            throw new NotFoundException("No events found");
-        }
-        Compilation compilation = compilationMapper.mapCompilationDtoToCompilation(compilationDto, events);
-        return compilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        Set<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
+        Compilation compilation = CompilationMapper.newCompilationDtoToCompilation(compilationDto, events);
+        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 
     @Override
-    @Transactional
     public void deleteCompById(Long compId) {
         Compilation compilation = getCompById(compId);
         compilationRepository.delete(compilation);
     }
 
     @Override
-    @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationDto updateComp) {
         Compilation compilation = getCompById(compId);
         if (updateComp.getTitle() != null && !updateComp.getTitle().isBlank()) {
@@ -65,18 +58,18 @@ public class CompilationServiceImpl implements CompilationService {
         if (updateComp.getEvents() != null) {
             compilation.setEvents(eventRepository.findAllByIdIn(updateComp.getEvents()));
         }
-        return compilationMapper.toCompilationDto(compilation);
+        return CompilationMapper.toCompilationDto(compilation);
     }
 
     @Override
-    public List<CompilationDto> getAllCompilations(Boolean pinned, Integer from, Integer size) {
-        Pageable pageable;
+    public List<CompilationDto> getAllCompilations(Boolean pinned, Pageable pageable) {
+        List<Compilation> compilations;
         if (pinned == null) {
-            pageable = PageRequest.of(from, size);
+            compilations = compilationRepository.findAll(pageable).toList();
         } else {
-            pageable = PageRequest.of(from, size, Sort.Direction.DESC, "id");
+            compilations = compilationRepository.findAllByPinned(pinned, pageable);
         }
-        return compilationRepository.findAllByPinned(pinned, pageable).stream()
+        return compilations.stream()
                 .map(CompilationMapper::toCompilationDto)
                 .collect(Collectors.toList());
     }
@@ -84,13 +77,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = getCompById(compId);
-        List<EventDto> events = compilation.getEvents()
-                .stream()
-                .map(EventMapper::toEventDto)
-                .collect(Collectors.toList());
-        CompilationDto dto = compilationMapper.toCompilationDto(compilation);
-        dto.setEvents(events);
-        return dto;
+        return CompilationMapper.toCompilationDto(compilation);
     }
 
     private Compilation getCompById(Long compId) {

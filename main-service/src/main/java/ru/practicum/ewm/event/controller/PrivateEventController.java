@@ -8,7 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
-import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
+import ru.practicum.ewm.event.dto.UpdateEventUserRequestDto;
 import ru.practicum.ewm.event.service.EventService;
 
 import javax.validation.Valid;
@@ -50,7 +50,7 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.OK)
     public EventDto updateEventUser(@PathVariable @Positive Long userId,
                                     @PathVariable @Positive Long eventId,
-                                    @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest) {
+                                    @RequestBody @Valid UpdateEventUserRequestDto updateEventUserRequest) {
         return eventService.updateEventUser(userId, eventId, updateEventUserRequest);
     }
 }

@@ -30,10 +30,8 @@ public class NewEventDto {
     @Valid
     @NotNull
     private LocationDto location;
-    @NotNull
     private Boolean paid;
-    @PositiveOrZero
-    private int participantLimit;
+    private Long participantLimit;
     private boolean requestModeration;
     @NotBlank
     @Size(min = 3, max = 120)

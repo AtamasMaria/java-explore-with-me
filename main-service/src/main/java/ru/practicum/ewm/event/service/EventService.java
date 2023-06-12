@@ -4,7 +4,7 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequestDto;
-import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
+import ru.practicum.ewm.event.dto.UpdateEventUserRequestDto;
 import ru.practicum.ewm.event.model.enums.EventSort;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ public interface EventService {
 
     Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                       LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort,
-                                      Integer from, Integer size, HttpServletRequest request);
+                                      Pageable page, HttpServletRequest request);
 
     List<EventDto> getEventUser(Long userId, Pageable page);
 
@@ -30,5 +30,5 @@ public interface EventService {
 
     EventDto getFullEventUser(Long userId, Long eventId);
 
-    EventDto updateEventUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
+    EventDto updateEventUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventUserRequest);
 }

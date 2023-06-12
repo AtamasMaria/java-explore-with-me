@@ -15,10 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewCompilationDto {
-    @NotBlank(message = "Title cannot be blank")
+    @NotBlank
     @Size(min = 1, max = 50)
     private String title;
-    @NotNull
+
     private Boolean pinned;
     private List<Long> events;
 }

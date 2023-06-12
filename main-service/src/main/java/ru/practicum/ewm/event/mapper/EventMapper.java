@@ -13,13 +13,13 @@ import ru.practicum.ewm.user.model.User;
 import java.time.LocalDateTime;
 
 public class EventMapper {
-    public static Event toEvent(NewEventDto newEventDto, Category category, User user, LocalDateTime dateTime) {
+    public static Event toEvent(NewEventDto newEventDto, Category category, User user) {
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(category)
                 .confirmedRequests(0L)
                 .description(newEventDto.getDescription())
-                .createdOn(dateTime)
+                .createdOn(newEventDto.getEventDate())
                 .eventDate(newEventDto.getEventDate())
                 .initiator(user)
                 .location(LocationMapper.toLocation(newEventDto.getLocation()))
@@ -47,7 +47,6 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
 

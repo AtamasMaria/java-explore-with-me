@@ -42,7 +42,7 @@ public class PublicEventController {
                                              HttpServletRequest httpRequest) {
         PageRequest page = PageRequest.of(from, size);
         return eventService.getAllEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
-                from, size, httpRequest);
+                page, httpRequest);
     }
 
     @GetMapping("/{id}")
