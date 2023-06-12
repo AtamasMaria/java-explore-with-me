@@ -224,7 +224,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void setConfirmedRequests(Event event) {
-        List<Request> requestList = requestRepository.findByIdInAndStatus(event.getId(), RequestStatus.CONFIRMED);
+        List<Request> requestList = requestRepository.findAllByIdInAndStatus(Set.of(event.getId()), RequestStatus.CONFIRMED);
         event.setConfirmedRequests((long) requestList.size());
     }
 
