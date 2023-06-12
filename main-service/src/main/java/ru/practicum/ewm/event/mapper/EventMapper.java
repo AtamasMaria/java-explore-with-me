@@ -10,8 +10,6 @@ import ru.practicum.ewm.event.model.enums.EventState;
 import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
-import java.time.LocalDateTime;
-
 public class EventMapper {
     public static Event toEvent(NewEventDto newEventDto, Category category, User user) {
         return Event.builder()

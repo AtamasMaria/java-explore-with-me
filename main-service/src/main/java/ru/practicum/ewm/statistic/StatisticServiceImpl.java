@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StatisticServiceImpl implements StatisticService {
-    private final StatsClient statsClient = new StatsClient("http://stats-server:9090");;
+    private final StatsClient statsClient = new StatsClient("http://stats-server:9090");
 
     @Override
     public void addHit(HttpServletRequest request) {

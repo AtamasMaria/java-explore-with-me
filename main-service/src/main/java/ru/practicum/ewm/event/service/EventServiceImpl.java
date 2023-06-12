@@ -17,6 +17,7 @@ import ru.practicum.ewm.event.model.enums.EventStateAction;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.exception.RequestsStatusException;
 import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.request.model.RequestStatus;
@@ -26,7 +27,6 @@ import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,7 +61,7 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        List<Event> events = eventRepository.findEventsByAdmin(users, categories, states1, rangeStart, rangeEnd, page);
+        List<Event> events = eventRepository.findEventsByAdmin(users, categories, states1, start, end, page);
         for (Event event : events) {
             statisticService.setEventViews(event);
             setConfirmedRequests(event);
@@ -216,7 +216,7 @@ public class EventServiceImpl implements EventService {
             Category category = getCategoryById(updateEventDto.getCategory());
             event.setCategory(category);
         }
-       fillEventState(event, updateEventDto.getStateAction());
+        fillEventState(event, updateEventDto.getStateAction());
 
         return EventMapper.toEventDto(eventRepository.save(event));
     }
@@ -239,8 +239,7 @@ public class EventServiceImpl implements EventService {
                         .sorted(Comparator.comparing(EventDto::getEventDate).reversed())
                         .collect(toList());
             default:
-                throw new ValidationException(String
-                        .format("Неизвестная команда."));
+                throw new ValidationException(String.format("Неизвестная команда."));
         }
     }
 
@@ -316,14 +315,13 @@ public class EventServiceImpl implements EventService {
 
     private void checkParticipationStatusIsPending(EventState state) {
         if (state.equals(RequestStatus.PENDING)) {
-            throw new RequestsStatusException("Запрос должен иметь статус PENDING");
+            throw new ConflictException("Запрос должен иметь статус PENDING");
         }
     }
 
     private static void checkEventStatePublished(Event event) {
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new NotFoundException (String
-                    .format("Событие еще не опубликованно."));
+            throw new NotFoundException(String.format("Событие еще не опубликованно."));
         }
     }
 }

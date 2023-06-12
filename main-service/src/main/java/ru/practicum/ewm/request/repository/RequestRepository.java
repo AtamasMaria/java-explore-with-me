@@ -18,10 +18,11 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
             "WHERE (r.event.id IN :eventIds) " +
             "AND (r.status = :status) " +
             "GROUP BY r.id")
-    List<EventRequestCountDto> findEventRequest(@Param("eventIds") List<Long> eventIds,
+    List<EventRequestCountDto> findEventRequest(@Param("eventIds") Set<Long> eventIds,
                                                 @Param("status") RequestStatus status);
 
     List<Request> findAllByIdInAndStatus(Set<Long> eventId, RequestStatus status);
+
     List<Request> findByIdInAndStatus(Long eventId, RequestStatus status);
 
     List<Request> findAllByRequesterId(Long requesterId);
