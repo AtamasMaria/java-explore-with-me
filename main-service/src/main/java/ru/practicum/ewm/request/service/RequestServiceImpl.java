@@ -71,6 +71,8 @@ public class RequestServiceImpl implements RequestService {
                 .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
 
+
+
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
     }
 
