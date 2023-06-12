@@ -18,14 +18,14 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/admin/events")
 @RequiredArgsConstructor
 @Validated
 public class AdminEventController {
 
     private final EventService eventService;
 
-    @GetMapping("/events")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public Collection<EventDto> getEvents(@RequestParam(required = false) List<Long> users,
                                           @RequestParam(required = false) List<String> states,
@@ -40,12 +40,10 @@ public class AdminEventController {
         return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, page);
     }
 
-    @PatchMapping("/events/{eventId}")
+    @PatchMapping("{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventDto updateEvent(@PathVariable @Positive Long eventId,
                                 @RequestBody @Valid UpdateEventAdminRequestDto updateEventAdminRequest) {
         return eventService.updateEvent(eventId, updateEventAdminRequest);
     }
-
-
 }

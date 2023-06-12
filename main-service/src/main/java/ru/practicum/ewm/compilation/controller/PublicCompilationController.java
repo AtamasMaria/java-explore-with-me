@@ -16,7 +16,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/")
 @RequiredArgsConstructor
-@Validated
 public class PublicCompilationController {
 
     private final CompilationService compilationService;

@@ -3,7 +3,6 @@ package ru.practicum.ewm.category.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.service.CategoryService;
@@ -15,7 +14,6 @@ import java.util.Collection;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/categories")
-@Validated
 public class PublicCategoryController {
 
     private final CategoryService categoryService;
@@ -23,13 +21,13 @@ public class PublicCategoryController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public Collection<CategoryDto> getAll(
-            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         PageRequest page = PageRequest.of(from, size);
         return categoryService.getAll(page);
     }
 
-    @GetMapping("/{catId}")
+    @GetMapping("{catId}")
     @ResponseStatus(HttpStatus.OK)
     public CategoryDto getCategoryById(@PathVariable Long catId) {
         return categoryService.getCategory(catId);

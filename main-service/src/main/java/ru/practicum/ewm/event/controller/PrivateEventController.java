@@ -17,13 +17,13 @@ import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
-@RequestMapping("users/{userId}/events")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Validated
 public class PrivateEventController {
     private final EventService eventService;
 
-    @GetMapping
+    @GetMapping("{userId}/events")
     @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getEventsUser(@PathVariable @Positive Long userId,
                                         @RequestParam(defaultValue = "0") @PositiveOrZero int from,
@@ -32,21 +32,21 @@ public class PrivateEventController {
         return eventService.getEventUser(userId, page);
     }
 
-    @PostMapping
+    @PostMapping("{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
     public EventDto addEventUser(@PathVariable @Positive Long userId,
                                  @RequestBody @Valid NewEventDto newEventDto) {
         return eventService.addEventUser(userId, newEventDto);
     }
 
-    @GetMapping("/{eventId}")
+    @GetMapping("{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventDto getFullEventUser(@PathVariable @Positive Long userId,
                                      @PathVariable @Positive Long eventId) {
         return eventService.getFullEventUser(userId, eventId);
     }
 
-    @PatchMapping("/{eventId}")
+    @PatchMapping("{userId}/events/{eventId}")
     @ResponseStatus(HttpStatus.OK)
     public EventDto updateEventUser(@PathVariable @Positive Long userId,
                                     @PathVariable @Positive Long eventId,
