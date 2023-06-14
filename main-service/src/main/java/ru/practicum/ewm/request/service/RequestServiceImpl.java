@@ -175,7 +175,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void checkRequestExist(Long userId, Long eventId) {
-        if(!requestRepository.existsByRequesterIdAndAndEventId(userId, eventId)) {
+        if (!requestRepository.existsByRequesterIdAndAndEventId(userId, eventId)) {
             throw new NotFoundException("Запрос не найден.");
         }
     }
