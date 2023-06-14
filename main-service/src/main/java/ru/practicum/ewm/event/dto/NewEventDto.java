@@ -3,7 +3,6 @@ package ru.practicum.ewm.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -24,14 +23,12 @@ public class NewEventDto {
     @Size(min = 20, max = 7000)
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @NotNull
     private LocalDateTime eventDate;
-    @Valid
     @NotNull
     private LocationDto location;
     private Boolean paid;
     private Long participantLimit;
-    private boolean requestModeration;
+    private Boolean requestModeration;
     @NotBlank
     @Size(min = 3, max = 120)
     private String title;

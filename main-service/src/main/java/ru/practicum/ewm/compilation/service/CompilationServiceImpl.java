@@ -3,6 +3,7 @@ package ru.practicum.ewm.compilation.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
@@ -20,11 +21,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
     private final CompilationRepository compilationRepository;
 
     @Override
+    @Transactional
     public CompilationDto create(NewCompilationDto compilationDto) {
         if (compilationDto.getEvents() == null || compilationDto.getEvents().isEmpty()) {
             Compilation compilation = CompilationMapper.newCompilationDtoToCompilation(compilationDto, new HashSet<>());
@@ -36,12 +39,14 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompById(Long compId) {
         Compilation compilation = getCompById(compId);
         compilationRepository.delete(compilation);
     }
 
     @Override
+    @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationDto updateComp) {
         Compilation compilation = getCompById(compId);
         if (updateComp.getTitle() != null && !updateComp.getTitle().isBlank()) {

@@ -21,8 +21,8 @@ public class PublicCategoryController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public Collection<CategoryDto> getAll(
-            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
+            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         PageRequest page = PageRequest.of(from, size);
         return categoryService.getAll(page);
     }

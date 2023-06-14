@@ -10,20 +10,21 @@ import ru.practicum.ewm.event.model.enums.EventState;
 import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
+import java.time.LocalDateTime;
+
 public class EventMapper {
     public static Event toEvent(NewEventDto newEventDto, Category category, User user) {
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(category)
-                .confirmedRequests(0L)
                 .description(newEventDto.getDescription())
-                .createdOn(newEventDto.getEventDate())
+                .createdOn(LocalDateTime.now())
                 .eventDate(newEventDto.getEventDate())
                 .initiator(user)
                 .location(LocationMapper.toLocation(newEventDto.getLocation()))
-                .paid(newEventDto.getPaid())
-                .participantLimit(newEventDto.getParticipantLimit())
-                .requestModeration(newEventDto.isRequestModeration())
+                .paid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false)
+                .participantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0)
+                .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
                 .state(EventState.PENDING)
                 .title(newEventDto.getTitle())
                 .build();
@@ -39,9 +40,9 @@ public class EventMapper {
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .location(LocationMapper.toLocationDto(event.getLocation()))
-                .paid(event.getPaid())
+                .paid(event.getPaid() != null ? event.getPaid() : false)
                 .participantLimit(event.getParticipantLimit())
-                .publishedOn((event.getPublishedOn() == null) ? null : event.getPublishedOn())
+                .publishedOn(event.getPublishedOn())
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())

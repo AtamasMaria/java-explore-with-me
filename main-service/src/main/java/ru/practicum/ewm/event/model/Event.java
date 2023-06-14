@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -24,18 +25,14 @@ public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
     private String annotation;
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
     @Column(name = "confirmed_requests")
     private Long confirmedRequests;
-    @OneToMany(mappedBy = "event")
-    @JsonManagedReference
-    @Fetch(FetchMode.SUBSELECT)
-    private List<Request> requests;
-    @Column(name = "created_on", nullable = false)
+    @Column(name = "created_on")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
     private String description;
     @Column(name = "event_date")
@@ -43,23 +40,19 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "initiator_id")
     private User initiator;
-    @AttributeOverrides({
-            @AttributeOverride(name = "lat", column = @Column(name = "lat")),
-            @AttributeOverride(name = "lon", column = @Column(name = "lon"))
-    })
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "location_id")
     private Location location;
-    @Column(nullable = false)
     private Boolean paid;
     @Column(name = "participant_limit")
     private Long participantLimit;
     @Column(name = "published_on")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
-    @Column(name = "request_moderation", nullable = false)
+    @Column(name = "request_moderation")
     private Boolean requestModeration;
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EventState state;
-    @Column(nullable = false)
     private String title;
     private Long views;
 }

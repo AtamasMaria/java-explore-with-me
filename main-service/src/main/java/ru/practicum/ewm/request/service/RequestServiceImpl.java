@@ -36,10 +36,12 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     @Override
     public EventRequestStatusUpdateResult changeStatusRequest(Long userId, Long eventId, EventRequestStatusUpdate updateDto) {
+
         if (updateDto.getStatus() == null || updateDto.getRequestIds() == null) {
             throw new ConflictException("Некорректный запрос, отсутствует статус или идентификаторы для замены.");
         }
         checkUserExists(userId);
+        checkRequestExist(userId, eventId);
         Event event = getEventById(eventId);
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
@@ -52,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
                 throw new ConflictException("Статус заявки остается неизменным.");
             }
             if (updateDto.getStatus().equals(RequestStatus.CONFIRMED)) {
-                if (event.getParticipantLimit() <= getConfirmedRequestsCount(event.getRequests())) {
+                if (event.getParticipantLimit() == getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId))) {
                     throw new ConflictException("Превышен лимит участников мероприятия.");
                 } else {
                     request.setStatus(RequestStatus.CONFIRMED);
@@ -90,8 +92,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto addUserRequest(Long userId, Long eventId) {
         checkUserExists(userId);
         Event event = getEventById(eventId);
-        Optional<Request> request = requestRepository.findByRequesterIdAndEventId(userId, eventId);
-        if (request.isPresent()) {
+        if (requestRepository.existsByRequesterIdAndAndEventId(userId, eventId)) {
             throw new ConflictException("Запрос на участие уже существует.");
         }
         if (userId.equals(event.getInitiator().getId())) {
@@ -100,9 +101,8 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("Событие еще не было опубликовано.");
         }
-
-        if (event.getParticipantLimit() < getConfirmedRequestsCount(event.getRequests())) {
-            throw new ConflictException("Лимит участников превышен.");
+        if (event.getParticipantLimit() == getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId))) {
+            throw new ConflictException("Лимит участников достигнут.");
 
         } else if (event.getRequestModeration() != null && !event.getRequestModeration()) {
             return RequestMapper.toParticipationRequestDto(requestRepository.save(
@@ -142,7 +142,7 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ValidationException("Информация по этому мероприятию доступна только инициатору.");
         }
-        return event.getRequests().stream()
+        return requestRepository.findAllByEventId(eventId).stream()
                 .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
@@ -172,6 +172,12 @@ public class RequestServiceImpl implements RequestService {
     private void checkUserExists(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("Пользователь с id={} не найден.", userId));
+        }
+    }
+
+    private void checkRequestExist(Long userId, Long eventId) {
+        if(!requestRepository.existsByRequesterIdAndAndEventId(userId, eventId)) {
+            throw new NotFoundException("Запрос не найден.");
         }
     }
 }

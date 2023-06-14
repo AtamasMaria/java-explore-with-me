@@ -14,7 +14,7 @@ public class CompilationMapper {
     public static CompilationDto toCompilationDto(Compilation compilation) {
         return CompilationDto.builder()
                 .id(compilation.getId())
-                .pinned(compilation.getPinned())
+                .pinned(compilation.getPinned() != null ? compilation.getPinned() : false)
                 .title(compilation.getTitle())
                 .events(compilation.getEvents().stream()
                         .map(EventMapper::toEventDto)
@@ -33,7 +33,7 @@ public class CompilationMapper {
             }
         }
         return Compilation.builder()
-                .pinned(newCompilationDto.getPinned())
+                .pinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false)
                 .title(newCompilationDto.getTitle())
                 .events(eventSet)
                 .build();

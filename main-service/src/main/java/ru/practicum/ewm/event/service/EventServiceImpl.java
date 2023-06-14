@@ -75,10 +75,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventDto updateEvent(Long eventId, UpdateEventAdminRequestDto updateEventDto) {
         Event event = getEventById(eventId);
         checkValidNewEvenDateByAdmin(updateEventDto);
         checkParticipationStatusIsPending(event.getState());
+        checkEventsStatePublishedOrCanceled(event);
 
         if (updateEventDto.getEventDate() != null) {
             event.setEventDate(updateEventDto.getEventDate());
@@ -125,7 +127,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid,
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                             Boolean onlyAvailable, EventSort sort, Pageable page, HttpServletRequest request) {
+                                             Boolean onlyAvailable, String sort, Pageable page, HttpServletRequest request) {
         if (rangeStart != null && rangeEnd != null) {
             if (rangeStart.isAfter(rangeEnd)) {
                 throw new ValidationException("Дата окончания события задана позже даты старта");
@@ -140,15 +142,7 @@ public class EventServiceImpl implements EventService {
         if (onlyAvailable.equals(Boolean.TRUE)) {
             events = selectOnlyAvailableEvents(events, eventsIds);
         }
-
-        if (sort != null) {
-            return getSortedEventsShortDto(events, sort);
-        }
-
-        return events.stream()
-                .peek(statisticService::setEventViews)
-                .map(EventMapper::toEventDto)
-                .collect(toList());
+        return getSortedEventsShortDto(events, sort);
     }
 
     @Override
@@ -187,6 +181,7 @@ public class EventServiceImpl implements EventService {
             throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа от текущего времени.");
         }
         Event event = getEventById(eventId);
+        checkEventsStatePublishedOrCanceled(event);
 
         if (updateEventDto.getEventDate() != null) {
             event.setEventDate(updateEventDto.getEventDate());
@@ -198,9 +193,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(updateEventDto.getDescription());
         }
         if (updateEventDto.getLocation() != null) {
-            Location location = event.getLocation();
-            location.setLon(updateEventDto.getLocation().getLon());
-            location.setLat(updateEventDto.getLocation().getLat());
+            event.setLocation(LocationMapper.toLocation(updateEventDto.getLocation()));
         }
         if (updateEventDto.getPaid() != null) {
             event.setPaid(updateEventDto.getPaid());
@@ -228,21 +221,18 @@ public class EventServiceImpl implements EventService {
         event.setConfirmedRequests((long) requestList.size());
     }
 
-    private List<EventDto> getSortedEventsShortDto(List<Event> events, EventSort sort) {
-        switch (sort) {
-            case VIEWS:
-                return events.stream()
-                        .map(EventMapper::toEventDto)
-                        .sorted(Comparator.comparing(EventDto::getViews).reversed())
-                        .collect(toList());
-            case EVENT_DATE:
-                return events.stream()
-                        .map(EventMapper::toEventDto)
-                        .sorted(Comparator.comparing(EventDto::getEventDate).reversed())
-                        .collect(toList());
-            default:
-                throw new ValidationException(String.format("Неизвестная команда."));
+    private List<EventDto> getSortedEventsShortDto(List<Event> events, String sort) {
+        if (sort.equals(EventSort.VIEWS)) {
+            return events.stream()
+                    .map(EventMapper::toEventDto)
+                    .sorted(Comparator.comparing(EventDto::getViews).reversed())
+                    .collect(toList());
         }
+
+        return events.stream()
+                .map(EventMapper::toEventDto)
+                .sorted(Comparator.comparing(EventDto::getEventDate).reversed())
+                .collect(toList());
     }
 
     private Set<Long> getEventIds(List<Event> events) {
@@ -324,6 +314,12 @@ public class EventServiceImpl implements EventService {
     private static void checkEventStatePublished(Event event) {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new NotFoundException(String.format("Событие еще не опубликованно."));
+        }
+    }
+
+    private void checkEventsStatePublishedOrCanceled(Event event) {
+        if (event.getState().equals(EventState.PUBLISHED) || event.getState().equals(EventState.CANCELED)) {
+            throw new ConflictException("Нельзя редактировать опубликованное или отклонненое событие.");
         }
     }
 }

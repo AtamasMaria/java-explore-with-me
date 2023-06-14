@@ -13,22 +13,22 @@ import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/compilations")
 @RequiredArgsConstructor
 public class PublicCompilationController {
 
     private final CompilationService compilationService;
 
-    @GetMapping("compilations")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CompilationDto> getAllCompilations(@RequestParam(required = false) Boolean pinned,
-                                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                                   @RequestParam(defaultValue = "10") @Positive Integer size) {
+                                                   @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                                   @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         PageRequest page = PageRequest.of(from / size, size, Sort.by(Sort.Direction.ASC, "id"));
         return compilationService.getAllCompilations(pinned, page);
     }
 
-    @GetMapping("compilations/{compId}")
+    @GetMapping("{compId}")
     @ResponseStatus(HttpStatus.OK)
     public CompilationDto getCompilationById(@PathVariable @Positive Long compId) {
         return compilationService.getCompilationById(compId);
