@@ -42,7 +42,7 @@ public class PublicEventController {
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
-    public EventDto getFullEvent(@PathVariable @Positive Long id, HttpServletRequest httpRequest) {
+    public EventDto getFullEvent(@PathVariable Long id, HttpServletRequest httpRequest) {
         return eventService.getFullEvent(id, httpRequest);
     }
 }

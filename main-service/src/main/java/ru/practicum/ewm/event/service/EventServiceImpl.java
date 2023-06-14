@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
-import ru.practicum.ewm.event.dto.EventDto;
-import ru.practicum.ewm.event.dto.NewEventDto;
-import ru.practicum.ewm.event.dto.UpdateEventAdminRequestDto;
-import ru.practicum.ewm.event.dto.UpdateEventUserRequestDto;
+import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.mapper.LocationMapper;
 import ru.practicum.ewm.event.model.Event;
@@ -48,20 +45,13 @@ public class EventServiceImpl implements EventService {
     @Override
     public Collection<EventDto> getEventsByAdmin(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable page) {
         List<EventState> states1 = null;
-        LocalDateTime start = null;
-        LocalDateTime end = null;
-        if (rangeStart != null) {
-            start = rangeStart;
-        }
-        if (rangeEnd != null) {
-            end = rangeEnd;
-        }
+        LocalDateTime start = rangeStart != null ? rangeStart : null;
+        LocalDateTime end = rangeEnd != null ? rangeEnd : null;
         if (states != null) {
             states1 = states.stream()
                     .map(EventState::valueOf)
                     .collect(Collectors.toList());
         }
-
         List<Event> events = eventRepository.findEventsByAdmin(users, categories, states1, start, end, page);
         for (Event event : events) {
             statisticService.setEventViews(event);
@@ -128,33 +118,39 @@ public class EventServiceImpl implements EventService {
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                              Boolean onlyAvailable, String sort, Pageable page, HttpServletRequest request) {
         if (rangeStart != null && rangeEnd != null) {
-            if (rangeStart.isAfter(rangeEnd)) {
-                throw new ValidationException("Дата окончания события задана позже даты старта");
+            if (rangeStart.isAfter(rangeEnd) || rangeEnd.isBefore(LocalDateTime.now())) {
+                throw new ValidationException("Дата окончания события задана позже даты старта, " +
+                        "а так же дата окончания не может быть до настоящего времени.");
             }
         }
-        List<Event> events = eventRepository.findEventsByUser(categories, paid, EventState.PUBLISHED, rangeStart, rangeEnd,
+        Boolean paidParam = paid != null ? paid: false;
+        Boolean onlyAvailableParam = onlyAvailable != null ? onlyAvailable: false;
+        LocalDateTime start = rangeStart == null ? LocalDateTime.now() : rangeStart;
+        LocalDateTime end = rangeEnd == null ? LocalDateTime.now().plusYears(1) : rangeEnd;
+
+        List<Event> events = eventRepository.findEventsByUser(categories, paidParam, EventState.PUBLISHED, start, end,
                 text, page);
         statisticService.addHit(request);
         Set<Long> eventsIds = getEventIds(events);
 
-
-        if (onlyAvailable.equals(Boolean.TRUE)) {
+        if (onlyAvailableParam == true) {
             events = selectOnlyAvailableEvents(events, eventsIds);
         }
         return getSortedEventsShortDto(events, sort);
     }
 
     @Override
-    public List<EventDto> getEventUser(Long userId, Pageable page) {
+    public List<EventShortDto> getEventUser(Long userId, Pageable page) {
         checkUserExists(userId);
         return eventRepository.findAllByInitiatorId(page, userId)
                 .stream()
                 .peek(statisticService::setEventViews)
-                .map(EventMapper::toEventDto)
+                .map(EventMapper::toEventShortDto)
                 .collect(toList());
     }
 
     @Override
+    @Transactional
     public EventDto addEventUser(Long userId, NewEventDto newEventDto) {
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Время мероприятия не может быть раньше текущего.");
@@ -175,6 +171,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventDto updateEventUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventDto) {
         if (updateEventDto.getEventDate().plusHours(2L).isAfter(LocalDateTime.now())) {
             throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа от текущего времени.");

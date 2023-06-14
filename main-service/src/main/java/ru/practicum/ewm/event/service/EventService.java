@@ -1,10 +1,7 @@
 package ru.practicum.ewm.event.service;
 
 import org.springframework.data.domain.Pageable;
-import ru.practicum.ewm.event.dto.EventDto;
-import ru.practicum.ewm.event.dto.NewEventDto;
-import ru.practicum.ewm.event.dto.UpdateEventAdminRequestDto;
-import ru.practicum.ewm.event.dto.UpdateEventUserRequestDto;
+import ru.practicum.ewm.event.dto.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -23,7 +20,7 @@ public interface EventService {
                                       LocalDateTime rangeEnd, Boolean onlyAvailable, String sort,
                                       Pageable page, HttpServletRequest request);
 
-    List<EventDto> getEventUser(Long userId, Pageable page);
+    List<EventShortDto> getEventUser(Long userId, Pageable page);
 
     EventDto addEventUser(Long userId, NewEventDto newEventDto);
 

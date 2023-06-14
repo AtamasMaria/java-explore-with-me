@@ -73,7 +73,6 @@ public class RequestServiceImpl implements RequestService {
                 .collect(Collectors.toList());
 
 
-
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
     }
 
@@ -91,7 +90,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto addUserRequest(Long userId, Long eventId) {
         checkUserExists(userId);
         Event event = getEventById(eventId);
-        if (requestRepository.existsByRequesterIdAndAndEventId(userId, eventId)) {
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Запрос на участие уже существует.");
         }
         if (userId.equals(event.getInitiator().getId())) {
@@ -100,10 +99,12 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("Событие еще не было опубликовано.");
         }
-        if (event.getParticipantLimit() == getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId))) {
+        if (event.getParticipantLimit() != 0 &&
+                event.getParticipantLimit() == getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId))) {
             throw new ConflictException("Лимит участников достигнут.");
+        }
 
-        } else if (event.getRequestModeration() != null && !event.getRequestModeration()) {
+        if (!event.getRequestModeration() && event.getParticipantLimit() == 0) {
             return RequestMapper.toParticipationRequestDto(requestRepository.save(
                     Request.builder()
                             .created(LocalDateTime.now())
@@ -111,6 +112,7 @@ public class RequestServiceImpl implements RequestService {
                             .event(event)
                             .status(RequestStatus.CONFIRMED)
                             .build()));
+
         } else {
             return RequestMapper.toParticipationRequestDto(requestRepository.save(
                     Request.builder()
@@ -175,7 +177,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private void checkRequestExist(Long userId, Long eventId) {
-        if (!requestRepository.existsByRequesterIdAndAndEventId(userId, eventId)) {
+        if (!requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new NotFoundException("Запрос не найден.");
         }
     }

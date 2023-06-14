@@ -11,10 +11,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class EventDto {
-    private Long id;
     private String annotation;
     private CategoryDto category;
     private Long confirmedRequests;
@@ -23,6 +22,7 @@ public class EventDto {
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
+    private Long id;
     private UserShortDto initiator;
     private LocationDto location;
     private Boolean paid;
