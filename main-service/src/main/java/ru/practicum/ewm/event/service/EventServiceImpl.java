@@ -221,7 +221,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventDto> getSortedEventsShortDto(List<Event> events, String sort) {
-        if (sort.equals(EventSort.VIEWS)) {
+        if (sort.equals(EventSort.VIEWS.toString())) {
             return events.stream()
                     .map(EventMapper::toEventDto)
                     .sorted(Comparator.comparing(EventDto::getViews).reversed())
