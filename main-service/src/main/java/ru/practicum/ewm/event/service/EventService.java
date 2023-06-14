@@ -5,7 +5,6 @@ import ru.practicum.ewm.event.dto.EventDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequestDto;
 import ru.practicum.ewm.event.dto.UpdateEventUserRequestDto;
-import ru.practicum.ewm.event.model.enums.EventSort;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;

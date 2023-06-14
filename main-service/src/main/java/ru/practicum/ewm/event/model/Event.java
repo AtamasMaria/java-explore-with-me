@@ -1,18 +1,13 @@
 package ru.practicum.ewm.event.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.model.enums.EventState;
-import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "events")

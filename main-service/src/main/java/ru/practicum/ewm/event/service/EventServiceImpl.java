@@ -13,7 +13,6 @@ import ru.practicum.ewm.event.dto.UpdateEventUserRequestDto;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.mapper.LocationMapper;
 import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.event.model.enums.EventSort;
 import ru.practicum.ewm.event.model.enums.EventState;
 import ru.practicum.ewm.event.model.enums.EventStateAction;
