@@ -1,7 +1,7 @@
 package ru.practicum.ewm.event.controller;
 
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +21,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users/{userId}/events")
 @RequiredArgsConstructor
@@ -32,8 +33,9 @@ public class PrivateEventController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEventsUser(@PathVariable @Positive Long userId,
-                                                 @RequestParam(required = false, defaultValue = "0") @PositiveOrZero int from,
-                                                 @RequestParam(required = false, defaultValue = "10") @Positive int size) {
+                                             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero int from,
+                                             @RequestParam(required = false, defaultValue = "10") @Positive int size) {
+        log.info("GET-Получение событий, добавленных текущим пользователем.");
         PageRequest page = PageRequest.of(from, size);
         return eventService.getEventUser(userId, page);
     }
@@ -42,6 +44,7 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventDto addEventUser(@PathVariable(name = "userId") @Positive Long userId,
                                  @RequestBody @Valid NewEventDto newEventDto) {
+        log.info("POST-Добавление нового события.");
         return eventService.addEventUser(userId, newEventDto);
     }
 
@@ -49,6 +52,7 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.OK)
     public EventDto getFullEventUser(@PathVariable(name = "userId") @Positive Long userId,
                                      @PathVariable(name = "eventId") @Positive Long eventId) {
+        log.info("GET-Получение полной информации о событии добывленном текуцим пользователем.");
         return eventService.getFullEventUser(userId, eventId);
     }
 
@@ -57,13 +61,15 @@ public class PrivateEventController {
     public EventDto updateEventUser(@PathVariable(name = "userId") @Positive Long userId,
                                     @PathVariable(name = "eventId") @Positive Long eventId,
                                     @RequestBody @Valid UpdateEventUserRequestDto updateEventUserRequest) {
+        log.info("PATCH-Изменение события добавленного текущим пользователем.");
         return eventService.updateEventUser(userId, eventId, updateEventUserRequest);
     }
 
     @GetMapping("{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public List<ParticipationRequestDto> getEventsRequests(@PathVariable(name = "userId") @Positive Long userId,
+    public List<ParticipationRequestDto> getAllRequestsByEventId(@PathVariable(name = "userId") @Positive Long userId,
                                                            @PathVariable(name = "eventId") @Positive Long eventId) {
+        log.info("GET-Получение информации о запросах на участие в событии текущего пользователя.");
         return requestService.getRequestsUser(userId, eventId);
     }
 
@@ -72,6 +78,7 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResult changeStatusRequest(@PathVariable(name = "userId") @Positive Long userId,
                                                               @PathVariable(name = "eventId") @Positive Long eventId,
                                                               @RequestBody EventRequestStatusUpdate statusUpdate) {
+        log.info("PATCH-Изменение статуса(подтверждена/отменена) заявок на участие в событии текущего пользователя");
         return requestService.changeStatusRequest(userId, eventId, statusUpdate);
     }
 }

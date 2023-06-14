@@ -14,6 +14,7 @@ import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +27,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto create(NewCategoryDto newCategoryDto) {
-       return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
+        return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
     }
 
     @Override
@@ -42,9 +43,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto update(CategoryDto categoryDto, long catId) {
-        Category category = getById(catId);
-        category.setName(categoryDto.getName());
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        checkCategoryExists(catId);
+        Category category = categoryRepository.saveAndFlush(categoryToUpdate(categoryDto, catId));
+        return CategoryMapper.toCategoryDto(category);
     }
 
     @Override
@@ -62,6 +63,19 @@ public class CategoryServiceImpl implements CategoryService {
     private Category getById(long catId) {
         return categoryRepository.findById(catId).orElseThrow(() ->
                 new NotFoundException("Категория с id={} не найдена." + catId));
+    }
+
+    private void checkCategoryExists(Long id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new NotFoundException(String.format("Категория с id={} не найдена", id));
+        }
+    }
+
+    private Category categoryToUpdate(CategoryDto categoryDto, Long id) {
+        Category category = categoryRepository.getReferenceById(id);
+
+        Optional.ofNullable(categoryDto.getName()).ifPresent(category::setName);
+        return category;
     }
 
 }

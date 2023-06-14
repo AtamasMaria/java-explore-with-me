@@ -33,15 +33,15 @@ public class StatsClient {
                 .block();
     }
 
-    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         return webClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
                         .queryParam("start", start.format(TIME_FORMATTER))
                         .queryParam("end", end.format(TIME_FORMATTER))
-                        .queryParam("uris[]", "uris", "uris")
-                        .queryParam("unique", "{unique}")
+                        .queryParam("uris", uris)
+                        .queryParam("unique", unique)
                         .build())
                 .retrieve()
                 .bodyToFlux(ViewStatsDto.class)

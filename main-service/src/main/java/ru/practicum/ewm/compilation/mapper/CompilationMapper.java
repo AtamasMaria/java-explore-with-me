@@ -31,7 +31,9 @@ public class CompilationMapper {
                     break;
                 }
             }
+
         }
+
         return Compilation.builder()
                 .pinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false)
                 .title(newCompilationDto.getTitle())

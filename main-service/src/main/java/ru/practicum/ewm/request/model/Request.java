@@ -1,6 +1,5 @@
 package ru.practicum.ewm.request.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.event.model.Event;
@@ -23,8 +22,7 @@ public class Request {
     @CreationTimestamp
     private LocalDateTime created;
     @ManyToOne
-    @JoinColumn(name = "event_id", nullable = false)
-    @JsonBackReference
+    @JoinColumn(name = "event_id")
     private Event event;
     @JoinColumn(name = "requester_id", unique = true)
     private Long requesterId;

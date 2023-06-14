@@ -100,7 +100,7 @@ public class EventServiceImpl implements EventService {
             event.setCategory(category);
         }
         fillEventState(event, updateEventDto.getStateAction());
-        return EventMapper.toEventDto(eventRepository.save(event));
+        return EventMapper.toEventDto(eventRepository.saveAndFlush(event));
     }
 
     @Override
@@ -123,10 +123,23 @@ public class EventServiceImpl implements EventService {
                         "а так же дата окончания не может быть до настоящего времени.");
             }
         }
-        Boolean paidParam = paid != null ? paid: false;
-        Boolean onlyAvailableParam = onlyAvailable != null ? onlyAvailable: false;
-        LocalDateTime start = rangeStart == null ? LocalDateTime.now() : rangeStart;
-        LocalDateTime end = rangeEnd == null ? LocalDateTime.now().plusYears(1) : rangeEnd;
+        Boolean paidParam = false;
+        Boolean onlyAvailableParam = false;
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusYears(1);
+
+        if (paid != null) {
+            paidParam = paid;
+        }
+        if (onlyAvailable != null) {
+            onlyAvailableParam = onlyAvailable;
+        }
+        if (rangeStart != null) {
+            start = rangeStart;
+        }
+        if (rangeEnd != null) {
+            end = rangeEnd;
+        }
 
         List<Event> events = eventRepository.findEventsByUser(categories, paidParam, EventState.PUBLISHED, start, end,
                 text, page);
@@ -173,9 +186,11 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDto updateEventUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventDto) {
-        if (updateEventDto.getEventDate().plusHours(2L).isAfter(LocalDateTime.now())) {
+        if (updateEventDto.getEventDate() == null ||
+                updateEventDto.getEventDate().plusHours(2L).isAfter(LocalDateTime.now())) {
             throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа от текущего времени.");
         }
+
         Event event = getEventById(eventId);
         checkEventsStatePublishedOrCanceled(event);
 
@@ -209,7 +224,7 @@ public class EventServiceImpl implements EventService {
         }
         fillEventState(event, updateEventDto.getStateAction());
 
-        return EventMapper.toEventDto(eventRepository.save(event));
+        return EventMapper.toEventDto(eventRepository.saveAndFlush(event));
     }
 
     private void setConfirmedRequests(Event event) {
