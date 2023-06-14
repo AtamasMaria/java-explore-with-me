@@ -317,7 +317,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkParticipationStatusIsPending(EventState state) {
-        if (state.equals(EventState.PENDING)) {
+        if (!state.equals(EventState.PENDING)) {
             throw new ConflictException("Запрос должен иметь статус PENDING");
         }
     }

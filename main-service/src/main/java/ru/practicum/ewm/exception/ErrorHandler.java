@@ -24,7 +24,7 @@ public class ErrorHandler {
         log.warn("400 {}", e.getMessage());
         return ApiError.builder()
                 .message(e.getMessage())
-                .reason(e)
+                .reason(e.toString())
                 .status("BAD_REQUEST")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
@@ -36,7 +36,7 @@ public class ErrorHandler {
         log.warn("404 {}", e.getMessage());
         return ApiError.builder()
                 .message(e.getMessage())
-                .reason(e)
+                .reason(e.toString())
                 .status("NOT_FOUND")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
@@ -49,7 +49,7 @@ public class ErrorHandler {
         log.warn("400 {}", e.getMessage(), e);
         return ApiError.builder()
                 .message(e.getMessage())
-                .reason(e)
+                .reason(e.toString())
                 .status("BAD_REQUEST")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
@@ -61,7 +61,7 @@ public class ErrorHandler {
         log.warn("400 {}", e.getMessage(), e);
         return ApiError.builder()
                 .message(e.getMessage())
-                .reason(e)
+                .reason(e.toString())
                 .status("BAD_REQUEST")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
@@ -73,7 +73,7 @@ public class ErrorHandler {
         log.warn("409 {}", e.getMessage());
         return ApiError.builder()
                 .message(e.getMessage())
-                .reason(e)
+                .reason(e.toString())
                 .status("CONFLICT")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
@@ -85,7 +85,7 @@ public class ErrorHandler {
         log.warn("409 {}", e.getMessage());
         return ApiError.builder()
                 .message(e.getMessage())
-                .reason(e)
+                .reason(e.toString())
                 .status("CONFLICT")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
@@ -97,7 +97,7 @@ public class ErrorHandler {
         log.error("Unknown error", throwable);
         return ApiError.builder()
                 .message(throwable.getMessage())
-                .reason(throwable)
+                .reason(throwable.toString())
                 .status("BAD_REQUEST")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
