@@ -9,57 +9,97 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage handleBadRequestException(final MethodArgumentNotValidException e) {
+    public ApiError handleBadRequestException(final MethodArgumentNotValidException e) {
         log.warn("400 {}", e.getMessage());
-        return ErrorMessage.builder().error(e.getMessage()).build();
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e)
+                .status("BAD_REQUEST")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessage handleUserNotFoundException(final NotFoundException e) {
+    public ApiError handleUserNotFoundException(final NotFoundException e) {
         log.warn("404 {}", e.getMessage());
-        return ErrorMessage.builder().error(e.getMessage()).build();
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e)
+                .status("NOT_FOUND")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage handleValidationException(ValidationException e) {
+    public ApiError handleValidationException(ValidationException e) {
         log.warn("400 {}", e.getMessage(), e);
-        return ErrorMessage.builder().error(e.getMessage()).build();
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e)
+                .status("BAD_REQUEST")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
+    public ApiError handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
         log.warn("400 {}", e.getMessage(), e);
-        return ErrorMessage.builder().error(e.getMessage()).build();
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e)
+                .status("BAD_REQUEST")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage handleConstraintViolationException(final ConflictException e) {
+    public ApiError handleConstraintViolationException(final ConflictException e) {
         log.warn("409 {}", e.getMessage());
-        return ErrorMessage.builder().error(e.getMessage()).build();
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e)
+                .status("CONFLICT")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorMessage handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+    public ApiError handleDataIntegrityViolationException(DataIntegrityViolationException e) {
         log.warn("409 {}", e.getMessage());
-        return ErrorMessage.builder().error(e.getMessage()).build();
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e)
+                .status("CONFLICT")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessage handleThrowable(Throwable throwable) {
+    public ApiError handleThrowable(Throwable throwable) {
         log.error("Unknown error", throwable);
-        return ErrorMessage.builder().error(throwable.getMessage()).build();
+        return ApiError.builder()
+                .message(throwable.getMessage())
+                .reason(throwable)
+                .status("BAD_REQUEST")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
     }
 }
