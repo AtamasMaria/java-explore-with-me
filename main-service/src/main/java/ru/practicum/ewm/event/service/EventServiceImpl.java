@@ -99,8 +99,11 @@ public class EventServiceImpl implements EventService {
             Category category = getCategoryById(updateEventDto.getCategory());
             event.setCategory(category);
         }
-        fillEventState(event, updateEventDto.getStateAction());
-        return EventMapper.toEventDto(eventRepository.saveAndFlush(event));
+        if (updateEventDto.getStateAction() != null) {
+            fillEventState(event, updateEventDto.getStateAction());
+        }
+
+        return EventMapper.toEventDto(eventRepository.save(event));
     }
 
     @Override
@@ -186,13 +189,17 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDto updateEventUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventDto) {
-        if (updateEventDto.getEventDate() == null ||
-                updateEventDto.getEventDate().plusHours(2L).isAfter(LocalDateTime.now())) {
-            throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа от текущего времени.");
+        if (updateEventDto.getEventDate() != null &&
+                updateEventDto.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Ошибка времени.");
         }
 
         Event event = getEventById(eventId);
-        checkEventsStatePublishedOrCanceled(event);
+        checkUserExists(userId);
+
+        if (event.getState().equals(EventState.PUBLISHED)) {
+            throw new ConflictException("Мероприятие уже опубликованно.");
+        }
 
         if (updateEventDto.getEventDate() != null) {
             event.setEventDate(updateEventDto.getEventDate());
@@ -222,9 +229,11 @@ public class EventServiceImpl implements EventService {
             Category category = getCategoryById(updateEventDto.getCategory());
             event.setCategory(category);
         }
-        fillEventState(event, updateEventDto.getStateAction());
+        if (updateEventDto.getStateAction() != null) {
+            fillEventState(event, updateEventDto.getStateAction());
+        }
 
-        return EventMapper.toEventDto(eventRepository.saveAndFlush(event));
+        return EventMapper.toEventDto(eventRepository.save(event));
     }
 
     private void setConfirmedRequests(Event event) {
@@ -285,15 +294,18 @@ public class EventServiceImpl implements EventService {
     }
 
     private void fillEventState(Event event, EventStateAction stateAction) {
-        if (stateAction == null) {
-            return;
-        }
         switch (stateAction) {
             case CANCEL_REVIEW:
                 event.setState(EventState.CANCELED);
                 break;
             case SEND_TO_REVIEW:
                 event.setState(EventState.PENDING);
+                break;
+            case PUBLISH_EVENT:
+                event.setState(EventState.PUBLISHED);
+                break;
+            case REJECT_EVENT:
+                event.setState(EventState.CANCELED);
                 break;
             default:
                 throw new ConflictException(String.format(String.format("ожидается состояние CANCEL_REVIEW or SEND_TO_REVIEW")));
@@ -311,8 +323,8 @@ public class EventServiceImpl implements EventService {
         if (eventNewDate == null) {
             return;
         }
-        if (eventNewDate.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа от текущего времени. ");
+        if (eventNewDate.isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Ошибка времени.");
         }
     }
 

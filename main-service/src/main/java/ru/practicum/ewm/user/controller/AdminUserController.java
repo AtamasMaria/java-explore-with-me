@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.user.dto.NewUserDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 
@@ -26,7 +27,7 @@ public class AdminUserController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto addUser(@RequestBody @Valid UserDto userDto) {
+    public UserDto addUser(@RequestBody @Valid NewUserDto userDto) {
         log.info("POST-Добавление нового пользователя. (ADMIN) ");
         return userService.create(userDto);
     }

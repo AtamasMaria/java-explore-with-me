@@ -1,12 +1,12 @@
 package ru.practicum.ewm.user.mapper;
 
-import ru.practicum.ewm.user.dto.UserDto;
-import ru.practicum.ewm.user.dto.UserShortDto;
+import lombok.NonNull;
+import ru.practicum.ewm.user.dto.*;
 import ru.practicum.ewm.user.model.User;
 
 public class UserMapper {
 
-    public static UserDto toUserDto(User user) {
+    public static UserDto toUserDto(@NonNull User user) {
         return UserDto.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -14,14 +14,14 @@ public class UserMapper {
                 .build();
     }
 
-    public static User toUser(UserDto userDto) {
+    public static User toUser(@NonNull NewUserDto userDto) {
         return User.builder()
                 .name(userDto.getName())
                 .email(userDto.getEmail())
                 .build();
     }
 
-    public static UserShortDto toUserShortDto(User user) {
+    public static UserShortDto toUserShortDto(@NonNull User user) {
         return UserShortDto.builder()
                 .id(user.getId())
                 .name(user.getName())
