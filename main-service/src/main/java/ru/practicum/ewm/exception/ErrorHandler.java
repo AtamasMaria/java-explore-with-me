@@ -40,7 +40,6 @@ public class ErrorHandler {
                 .build();
     }
 
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleValidationException(ValidationException e) {

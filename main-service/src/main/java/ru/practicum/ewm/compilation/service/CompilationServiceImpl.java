@@ -29,12 +29,11 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto create(NewCompilationDto compilationDto) {
-        if (compilationDto.getEvents() == null || compilationDto.getEvents().isEmpty()) {
-            Compilation compilation = CompilationMapper.newCompilationDtoToCompilation(compilationDto, new HashSet<>());
-            return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        Set<Event> eventList = new HashSet<>();
+        if (compilationDto.getEvents() != null || !compilationDto.getEvents().isEmpty()) {
+            eventList = eventRepository.findAllByIdIn(compilationDto.getEvents());
         }
-        Set<Event> events = eventRepository.findAllByIdIn(compilationDto.getEvents());
-        Compilation compilation = CompilationMapper.newCompilationDtoToCompilation(compilationDto, events);
+        Compilation compilation = CompilationMapper.toCompilation(compilationDto, eventList);
         return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 

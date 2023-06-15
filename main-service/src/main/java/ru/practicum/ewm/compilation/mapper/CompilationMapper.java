@@ -22,6 +22,16 @@ public class CompilationMapper {
                 .build();
     }
 
+    public static Compilation toCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
+        return Compilation.builder()
+                .pinned(newCompilationDto.getPinned() != null ? newCompilationDto.getPinned() : false)
+                .title(newCompilationDto.getTitle())
+                .events(events)
+                .build();
+    }
+
+
+
     public static Compilation newCompilationDtoToCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
         Set<Event> eventSet = new HashSet<>();
         for (Long eventId : newCompilationDto.getEvents()) {

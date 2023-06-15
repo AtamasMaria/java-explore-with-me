@@ -67,11 +67,11 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDto updateEvent(Long eventId, UpdateEventAdminRequestDto updateEventDto) {
         Event event = getEventById(eventId);
-        checkValidNewEvenDateByAdmin(updateEventDto);
         checkParticipationStatusIsPending(event.getState());
         checkEventsStatePublishedOrCanceled(event);
 
         if (updateEventDto.getEventDate() != null) {
+            checkValidEvenDateByAdmin(updateEventDto.getEventDate());
             event.setEventDate(updateEventDto.getEventDate());
         }
         if (updateEventDto.getTitle() != null && !(updateEventDto.getTitle().isBlank())) {
@@ -168,9 +168,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDto addEventUser(Long userId, NewEventDto newEventDto) {
-        if (newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Время мероприятия не может быть раньше текущего.");
-        }
+        checkValidEventDate(newEventDto.getEventDate());
         User user = getUserById(userId);
         Category category = getCategoryById(newEventDto.getCategory());
 
@@ -189,9 +187,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDto updateEventUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventDto) {
-        if (updateEventDto.getEventDate() != null &&
-                updateEventDto.getEventDate().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Ошибка времени.");
+        if (updateEventDto.getEventDate() != null) {
+                checkValidEventDate(updateEventDto.getEventDate());
         }
 
         Event event = getEventById(eventId);
@@ -318,13 +315,15 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void checkValidNewEvenDateByAdmin(UpdateEventAdminRequestDto eventUpdateDto) {
-        LocalDateTime eventNewDate = eventUpdateDto.getEventDate();
-        if (eventNewDate == null) {
-            return;
+    private void checkValidEvenDateByAdmin(LocalDateTime eventDate) {
+        if(LocalDateTime.now().plusHours(1).isAfter(eventDate)) {
+            throw new ValidationException("Мероприятие не может быть раньше, чем через час до настоящего времени.");
         }
-        if (eventNewDate.isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Ошибка времени.");
+    }
+
+    private void checkValidEventDate(LocalDateTime eventDate) {
+        if(LocalDateTime.now().plusHours(2).isAfter(eventDate)) {
+            throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа до настоящего времени.");
         }
     }
 

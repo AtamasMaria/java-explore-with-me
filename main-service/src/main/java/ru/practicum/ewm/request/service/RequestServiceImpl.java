@@ -90,6 +90,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto addUserRequest(Long userId, Long eventId) {
         checkUserExists(userId);
         Event event = getEventById(eventId);
+
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Запрос на участие уже существует.");
         }
@@ -99,9 +100,9 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new ConflictException("Событие еще не было опубликовано.");
         }
-        if (event.getParticipantLimit() != 0 &&
-                event.getParticipantLimit() == getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId))) {
-            throw new ConflictException("Лимит участников достигнут.");
+        if (event.getParticipantLimit() != 0) {
+            int confirmedRequests = getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId));
+            checkParticipationLimit((long) confirmedRequests, event.getParticipantLimit());
         }
 
         if (!event.getRequestModeration() && event.getParticipantLimit() == 0) {
@@ -179,6 +180,14 @@ public class RequestServiceImpl implements RequestService {
     private void checkRequestExist(Long userId, Long eventId) {
         if (!requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new NotFoundException("Запрос не найден.");
+        }
+    }
+
+    private void checkParticipationLimit(Long confirmedRequests, Long participationLimit) {
+        Long requests = confirmedRequests + 1;
+
+        if (requests > participationLimit) {
+            throw new ConflictException("Лимит участников в мероприятии превышен.");
         }
     }
 }
