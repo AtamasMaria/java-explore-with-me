@@ -14,7 +14,6 @@ import ru.practicum.ewm.event.service.EventService;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdate;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
-import ru.practicum.ewm.request.service.RequestService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -28,7 +27,6 @@ import java.util.List;
 @Validated
 public class PrivateEventController {
     private final EventService eventService;
-    private final RequestService requestService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -68,9 +66,9 @@ public class PrivateEventController {
     @GetMapping("{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllRequestsByEventId(@PathVariable(name = "userId") @Positive Long userId,
-                                                           @PathVariable(name = "eventId") @Positive Long eventId) {
+                                                                 @PathVariable(name = "eventId") @Positive Long eventId) {
         log.info("GET-Получение информации о запросах на участие в событии текущего пользователя.");
-        return requestService.getRequestsUser(userId, eventId);
+        return eventService.getUserRequests(userId, eventId);
     }
 
     @PatchMapping("{eventId}/requests")
@@ -79,7 +77,7 @@ public class PrivateEventController {
                                                               @PathVariable(name = "eventId") @Positive Long eventId,
                                                               @RequestBody EventRequestStatusUpdate statusUpdate) {
         log.info("PATCH-Изменение статуса(подтверждена/отменена) заявок на участие в событии текущего пользователя");
-        return requestService.changeStatusRequest(userId, eventId, statusUpdate);
+        return eventService.changeStatusRequest(userId, eventId, statusUpdate);
     }
 }
 

@@ -24,14 +24,14 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
 
-    @Override
     @Transactional
+    @Override
     public CategoryDto create(NewCategoryDto newCategoryDto) {
         return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
     }
 
-    @Override
     @Transactional
+    @Override
     public void delete(long catId) {
         Category category = getById(catId);
         if (!eventRepository.findByCategory(category).isEmpty()) {
@@ -40,11 +40,11 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(catId);
     }
 
-    @Override
     @Transactional
-    public CategoryDto update(CategoryDto categoryDto, long catId) {
+    @Override
+    public CategoryDto update(NewCategoryDto categoryDto, long catId) {
         checkCategoryExists(catId);
-        Category category = categoryRepository.saveAndFlush(categoryToUpdate(categoryDto, catId));
+        Category category = categoryRepository.save(categoryToUpdate(categoryDto, catId));
         return CategoryMapper.toCategoryDto(category);
     }
 
@@ -71,11 +71,10 @@ public class CategoryServiceImpl implements CategoryService {
         }
     }
 
-    private Category categoryToUpdate(CategoryDto categoryDto, Long id) {
+    private Category categoryToUpdate(NewCategoryDto categoryDto, Long id) {
         Category category = categoryRepository.getReferenceById(id);
 
         Optional.ofNullable(categoryDto.getName()).ifPresent(category::setName);
         return category;
     }
-
 }

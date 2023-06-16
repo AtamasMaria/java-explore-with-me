@@ -12,7 +12,7 @@ public interface CategoryService {
 
     void delete(long categoryId);
 
-    CategoryDto update(CategoryDto categoryDto, long categoryId);
+    CategoryDto update(NewCategoryDto categoryDto, long categoryId);
 
     Collection<CategoryDto> getAll(Pageable page);
 

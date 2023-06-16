@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.user.dto.NewUserDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 
@@ -27,7 +26,7 @@ public class AdminUserController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto addUser(@RequestBody @Valid NewUserDto userDto) {
+    public UserDto addUser(@RequestBody @Valid UserDto userDto) {
         log.info("POST-Добавление нового пользователя. (ADMIN) ");
         return userService.create(userDto);
     }
@@ -42,8 +41,8 @@ public class AdminUserController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public Collection<UserDto> getAllUsers(@RequestParam(required = false) List<Long> ids,
-                                           @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                           @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+                                           @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                           @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-Получение информации о пользователях. (ADMIN)");
         PageRequest page = PageRequest.of(from, size);
         return userService.getAll(ids, page);

@@ -100,16 +100,4 @@ public class ErrorHandler {
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleRequestEventException(final RequestEventException e) {
-        log.error("409 {}", e.getMessage());
-        return ApiError.builder()
-                .message(e.getMessage())
-                .reason(e.toString())
-                .status("BAD_REQUEST")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
-                .build();
-    }
 }

@@ -1,8 +1,8 @@
 package ru.practicum.ewm.request.model;
 
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,14 +19,13 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "created_on")
-    @CreationTimestamp
     private LocalDateTime created;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id")
     private Event event;
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "requester_id", unique = true)
-    private Long requesterId;
+    private User requester;
     @Enumerated(EnumType.STRING)
-    @Column
     private RequestStatus status;
 }

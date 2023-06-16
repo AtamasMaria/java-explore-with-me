@@ -22,7 +22,7 @@ public class PrivateRequestController {
     @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getUserRequests(@PathVariable(name = "userId") @Positive Long userId) {
         log.info("GET-Получение информации о заявках текущего пользователя на участие в чужих событиях.");
-        return requestService.getUserRequests(userId);
+        return requestService.getRequestsUser(userId);
     }
 
     @PostMapping("{userId}/requests")

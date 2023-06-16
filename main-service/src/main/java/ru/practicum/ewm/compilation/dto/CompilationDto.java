@@ -3,7 +3,7 @@ package ru.practicum.ewm.compilation.dto;
 import lombok.*;
 import ru.practicum.ewm.event.dto.EventShortDto;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -14,5 +14,5 @@ public class CompilationDto {
     private Long id;
     private Boolean pinned;
     private String title;
-    private List<EventShortDto> events;
+    private Set<EventShortDto> events;
 }

@@ -10,13 +10,12 @@ import ru.practicum.ewm.event.model.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByCategory(Category category);
 
-    Set<Event> findAllByIdIn(List<Long> eventIds);
+    List<Event> findAllByIdIn(List<Long> eventIds);
 
     List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
@@ -39,14 +38,15 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "JOIN FETCH e.category " +
             "WHERE (:categories IS NULL OR e.category.id IN :categories) " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
-            "AND (:states IS NULL OR e.state = :states) " +
+            "AND (:state IS NULL OR e.state = :state) " +
             "AND (e.eventDate BETWEEN :start AND :end) " +
+            "AND (e.confirmedRequests < e.participantLimit) " +
             "AND ((:text IS NULL) " +
             "       OR LOWER(e.description) LIKE LOWER(CONCAT('%',:text,'%')) " +
-            "       OR LOWER(e.annotation) LIKE LOWER(CONCAT('%',:text,'%')))")
+            "       OR LOWER(e.annotation) LIKE LOWER(CONCAT('%',:text,'%'))) ")
     List<Event> findAllByUser(@Param("categories") List<Long> categories,
                               @Param("paid") Boolean paid,
-                              @Param("states") EventState states,
+                              @Param("state") EventState state,
                               @Param("start") LocalDateTime rangeStart,
                               @Param("end") LocalDateTime rangeEnd,
                               @Param("text") String text,
