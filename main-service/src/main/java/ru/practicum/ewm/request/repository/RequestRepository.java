@@ -15,6 +15,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     boolean existsByRequesterIdAndEventId(Long userId, Long eventId);
 
     List<Request> findAllByEventId(Long eventId);
-
-    Request findByIdAndRequesterId(Long id, Long RequesterId);
 }

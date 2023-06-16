@@ -7,7 +7,6 @@ import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CompilationMapper {
