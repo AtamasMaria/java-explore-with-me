@@ -18,11 +18,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Set<Event> findAllByIdIn(List<Long> eventIds);
 
-    @Query("SELECT e FROM Event as e " +
-            "JOIN FETCH e.initiator " +
-            "JOIN FETCH e.category " +
-            "WHERE e.initiator.id = ?1")
-    List<Event> findAllByInitiatorId(Pageable pageable, Long initiatorId);
+    List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
     @Query("SELECT e FROM Event as e " +
             "JOIN FETCH e.initiator " +
@@ -31,12 +27,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND (:categories IS NULL OR e.category.id IN :categories) " +
             "AND (:states IS NULL OR e.state IN :states) " +
             "AND (e.eventDate BETWEEN :start AND :end)")
-    List<Event> findEventsByAdmin(@Param("users") List<Long> users,
-                                  @Param("categories") List<Long> categories,
-                                  @Param("states") List<EventState> states,
-                                  @Param("start") LocalDateTime rangeStart,
-                                  @Param("end") LocalDateTime rangeEnd,
-                                  Pageable pageable);
+    List<Event> findAllByAdmin(@Param("users") List<Long> users,
+                               @Param("categories") List<Long> categories,
+                               @Param("states") List<EventState> states,
+                               @Param("start") LocalDateTime rangeStart,
+                               @Param("end") LocalDateTime rangeEnd,
+                               Pageable pageable);
 
     @Query("SELECT e FROM Event as e " +
             "JOIN FETCH e.initiator " +
@@ -48,11 +44,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "AND ((:text IS NULL) " +
             "       OR LOWER(e.description) LIKE LOWER(CONCAT('%',:text,'%')) " +
             "       OR LOWER(e.annotation) LIKE LOWER(CONCAT('%',:text,'%')))")
-    List<Event> findEventsByUser(@Param("categories") List<Long> categories,
-                                 @Param("paid") Boolean paid,
-                                 @Param("states") EventState states,
-                                 @Param("start") LocalDateTime rangeStart,
-                                 @Param("end") LocalDateTime rangeEnd,
-                                 @Param("text") String text,
-                                 Pageable pageable);
+    List<Event> findAllByUser(@Param("categories") List<Long> categories,
+                              @Param("paid") Boolean paid,
+                              @Param("states") EventState states,
+                              @Param("start") LocalDateTime rangeStart,
+                              @Param("end") LocalDateTime rangeEnd,
+                              @Param("text") String text,
+                              Pageable pageable);
 }

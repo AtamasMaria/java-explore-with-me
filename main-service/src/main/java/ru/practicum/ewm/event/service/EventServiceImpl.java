@@ -8,8 +8,8 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
-import ru.practicum.ewm.event.mapper.LocationMapper;
 import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.event.model.enums.EventSort;
 import ru.practicum.ewm.event.model.enums.EventState;
 import ru.practicum.ewm.event.model.enums.EventStateAction;
@@ -52,9 +52,8 @@ public class EventServiceImpl implements EventService {
                     .map(EventState::valueOf)
                     .collect(Collectors.toList());
         }
-        List<Event> events = eventRepository.findEventsByAdmin(users, categories, states1, start, end, page);
+        List<Event> events = eventRepository.findAllByAdmin(users, categories, states1, start, end, page);
         for (Event event : events) {
-            statisticService.setEventViews(event);
             setConfirmedRequests(event);
         }
         return events
@@ -84,7 +83,9 @@ public class EventServiceImpl implements EventService {
             event.setDescription(updateEventDto.getDescription());
         }
         if (updateEventDto.getLocation() != null) {
-            event.setLocation(LocationMapper.toLocation(updateEventDto.getLocation()));
+            Location location = event.getLocation();
+            location.setLon(updateEventDto.getLocation().getLon());
+            location.setLat(updateEventDto.getLocation().getLat());
         }
         if (updateEventDto.getPaid() != null) {
             event.setPaid(updateEventDto.getPaid());
@@ -111,19 +112,19 @@ public class EventServiceImpl implements EventService {
         Event event = getEventById(id);
         checkEventStatePublished(event);
         setConfirmedRequests(event);
-        statisticService.addHit(request);
-        statisticService.setEventViews(event);
+        statisticService.addView(request);
+        Map<Long, Long> hits = statisticService.getStatsEvents(List.of(event));
+        event.setViews(hits.get(event.getId()));
         return EventMapper.toEventDto(event);
     }
 
     @Override
-    public Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid,
+    public Collection<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid,
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                              Boolean onlyAvailable, String sort, Pageable page, HttpServletRequest request) {
         if (rangeStart != null && rangeEnd != null) {
             if (rangeStart.isAfter(rangeEnd) || rangeEnd.isBefore(LocalDateTime.now())) {
-                throw new ValidationException("Дата окончания события задана позже даты старта, " +
-                        "а так же дата окончания не может быть до настоящего времени.");
+                throw new ValidationException("Дата окончания события задана позже даты старта, " + "а так же дата окончания не может быть до настоящего времени.");
             }
         }
         Boolean paidParam = false;
@@ -144,9 +145,8 @@ public class EventServiceImpl implements EventService {
             end = rangeEnd;
         }
 
-        List<Event> events = eventRepository.findEventsByUser(categories, paidParam, EventState.PUBLISHED, start, end,
-                text, page);
-        statisticService.addHit(request);
+        List<Event> events = eventRepository.findAllByUser(categories, paidParam, EventState.PUBLISHED, start, end, text, page);
+        statisticService.addView(request);
         Set<Long> eventsIds = getEventIds(events);
 
         if (onlyAvailableParam == true) {
@@ -158,11 +158,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getEventUser(Long userId, Pageable page) {
         checkUserExists(userId);
-        return eventRepository.findAllByInitiatorId(page, userId)
-                .stream()
-                .peek(statisticService::setEventViews)
-                .map(EventMapper::toEventShortDto)
-                .collect(toList());
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, page);
+        Map<Long, Long> views = statisticService.getStatsEvents(events);
+        return events.stream().map(EventMapper::toEventShortDto).peek(e -> e.setViews(views.getOrDefault(e.getId(), 0L))).collect(toList());
     }
 
     @Override
@@ -180,7 +178,8 @@ public class EventServiceImpl implements EventService {
     public EventDto getFullEventUser(Long userId, Long eventId) {
         checkUserExists(userId);
         Event event = getEventById(eventId);
-        statisticService.setEventViews(event);
+        Map<Long, Long> hits = statisticService.getStatsEvents(List.of(event));
+        event.setViews(hits.getOrDefault(event.getId(), 0L));
         return EventMapper.toEventDto(event);
     }
 
@@ -208,7 +207,9 @@ public class EventServiceImpl implements EventService {
             event.setDescription(updateEventDto.getDescription());
         }
         if (updateEventDto.getLocation() != null) {
-            event.setLocation(LocationMapper.toLocation(updateEventDto.getLocation()));
+            Location location = event.getLocation();
+            location.setLon(updateEventDto.getLocation().getLon());
+            location.setLat(updateEventDto.getLocation().getLat());
         }
         if (updateEventDto.getPaid() != null) {
             event.setPaid(updateEventDto.getPaid());
@@ -229,7 +230,8 @@ public class EventServiceImpl implements EventService {
         if (updateEventDto.getStateAction() != null) {
             fillEventState(event, updateEventDto.getStateAction());
         }
-
+        Map<Long, Long> hits = statisticService.getStatsEvents(List.of(event));
+        event.setViews(hits.getOrDefault(event.getId(), 0L));
         return EventMapper.toEventDto(eventRepository.save(event));
     }
 
@@ -238,18 +240,13 @@ public class EventServiceImpl implements EventService {
         event.setConfirmedRequests((long) requestList.size());
     }
 
-    private List<EventDto> getSortedEventsShortDto(List<Event> events, String sort) {
+    private List<EventShortDto> getSortedEventsShortDto(List<Event> events, String sort) {
+        Map<Long, Long> viewsMap = statisticService.getStatsEvents(events);
         if (sort.equals(EventSort.VIEWS.toString())) {
-            return events.stream()
-                    .map(EventMapper::toEventDto)
-                    .sorted(Comparator.comparing(EventDto::getViews).reversed())
-                    .collect(toList());
+            return events.stream().map(EventMapper::toEventShortDto).peek(e -> e.setViews(viewsMap.get(e.getId()))).sorted(Comparator.comparing(EventShortDto::getViews).reversed()).collect(toList());
         }
 
-        return events.stream()
-                .map(EventMapper::toEventDto)
-                .sorted(Comparator.comparing(EventDto::getEventDate).reversed())
-                .collect(toList());
+        return events.stream().map(EventMapper::toEventShortDto).peek(e -> e.setViews(viewsMap.get(e.getId()))).sorted(Comparator.comparing(EventShortDto::getEventDate).reversed()).collect(toList());
     }
 
     private Set<Long> getEventIds(List<Event> events) {
@@ -316,13 +313,13 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkValidEvenDateByAdmin(LocalDateTime eventDate) {
-        if(LocalDateTime.now().plusHours(1).isAfter(eventDate)) {
+        if (LocalDateTime.now().plusHours(1).isAfter(eventDate)) {
             throw new ValidationException("Мероприятие не может быть раньше, чем через час до настоящего времени.");
         }
     }
 
     private void checkValidEventDate(LocalDateTime eventDate) {
-        if(LocalDateTime.now().plusHours(2).isAfter(eventDate)) {
+        if (LocalDateTime.now().plusHours(2).isAfter(eventDate)) {
             throw new ValidationException("Мероприятие не может быть раньше, чем через 2 часа до настоящего времени.");
         }
     }

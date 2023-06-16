@@ -8,6 +8,7 @@ import ru.practicum.ewm.event.model.enums.EventState;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.exception.RequestEventException;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdate;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
@@ -94,7 +95,7 @@ public class RequestServiceImpl implements RequestService {
         if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new ConflictException("Запрос на участие уже существует.");
         }
-        if (userId.equals(event.getInitiator().getId())) {
+        if (userId == event.getInitiator().getId()) {
             throw new ConflictException("Инициатор мероприятия не может добавить запрос на свое событие.");
         }
         if (!event.getState().equals(EventState.PUBLISHED)) {
@@ -105,7 +106,7 @@ public class RequestServiceImpl implements RequestService {
             checkParticipationLimit((long) confirmedRequests, event.getParticipantLimit());
         }
 
-        if (!event.getRequestModeration() && event.getParticipantLimit() == 0) {
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             return RequestMapper.toParticipationRequestDto(requestRepository.save(
                     Request.builder()
                             .created(LocalDateTime.now())
@@ -141,7 +142,7 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getRequestsUser(Long userId, Long eventId) {
         checkUserExists(userId);
         Event event = getEventById(eventId);
-        if (!event.getInitiator().getId().equals(userId)) {
+        if (event.getInitiator().getId() != userId) {
             throw new ValidationException("Информация по этому мероприятию доступна только инициатору.");
         }
         return requestRepository.findAllByEventId(eventId).stream()
@@ -150,10 +151,10 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public int getConfirmedRequestsCount(List<Request> requests) {
-        if (requests == null) {
+        if (requests == null || requests.isEmpty()) {
             return 0;
         }
-        return (int) requests.stream().filter(r -> !r.getStatus().equals(RequestStatus.CONFIRMED)).count();
+        return (int) requests.stream().filter(r -> r.getStatus().equals(RequestStatus.CONFIRMED)).count();
     }
 
     private Request getRequestById(Long requestId) {

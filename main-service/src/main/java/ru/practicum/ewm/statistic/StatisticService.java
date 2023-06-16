@@ -3,9 +3,11 @@ package ru.practicum.ewm.statistic;
 import ru.practicum.ewm.event.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 public interface StatisticService {
-    void addHit(HttpServletRequest request);
+    void addView(HttpServletRequest request);
 
-    void setEventViews(Event event);
+    Map<Long, Long> getStatsEvents(List<Event> events);
 }

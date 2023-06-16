@@ -55,7 +55,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiError handleValidationException(ValidationException e) {
+    public ApiError handleValidationException(final ValidationException e) {
         log.warn("400 {}", e.getMessage(), e);
         return ApiError.builder()
                 .message(e.getMessage())
@@ -79,7 +79,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+    public ApiError handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         log.warn("409 {}", e.getMessage());
         return ApiError.builder()
                 .message(e.getMessage())
@@ -91,11 +91,23 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleThrowable(Throwable throwable) {
+    public ApiError handleThrowable(final Throwable throwable) {
         log.error("Unknown error", throwable);
         return ApiError.builder()
                 .message(throwable.getMessage())
                 .reason(throwable.toString())
+                .status("BAD_REQUEST")
+                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleRequestEventException(final RequestEventException e) {
+        log.error("409 {}", e.getMessage());
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e.toString())
                 .status("BAD_REQUEST")
                 .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
                 .build();

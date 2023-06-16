@@ -21,12 +21,13 @@ public class EventMapper {
                 .createdOn(LocalDateTime.now())
                 .eventDate(newEventDto.getEventDate())
                 .initiator(user)
-                .location(LocationMapper.toLocation(newEventDto.getLocation()))
+                .location(newEventDto.getLocation())
                 .paid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false)
                 .participantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0)
                 .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
                 .state(EventState.PENDING)
                 .title(newEventDto.getTitle())
+                .views(0L)
                 .build();
     }
 

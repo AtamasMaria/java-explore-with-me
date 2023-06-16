@@ -16,7 +16,7 @@ public interface EventService {
 
     EventDto getFullEvent(Long id, HttpServletRequest request);
 
-    Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+    Collection<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                       LocalDateTime rangeEnd, Boolean onlyAvailable, String sort,
                                       Pageable page, HttpServletRequest request);
 
