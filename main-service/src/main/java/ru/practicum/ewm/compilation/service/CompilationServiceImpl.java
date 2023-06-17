@@ -10,12 +10,16 @@ import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.compilation.mapper.CompilationMapper;
 import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.compilation.repository.CompilationRepository;
+import ru.practicum.ewm.event.dto.EventShortDto;
+import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,12 +32,14 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto create(NewCompilationDto compilationDto) {
-        List<Event> eventList = new ArrayList<>();
-        if (compilationDto.getEvents() != null || !compilationDto.getEvents().isEmpty()) {
-            eventList = eventRepository.findAllByIdIn(compilationDto.getEvents());
+        Set<Event> events = new HashSet<>();
+        if (compilationDto.getEvents() != null) {
+            events = eventRepository.findAllByIdIn(compilationDto.getEvents());
         }
-        Compilation compilation = CompilationMapper.toCompilation(compilationDto, eventList);
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        Compilation compilation = compilationRepository.save(CompilationMapper.toCompilation(compilationDto, events));
+        List<EventShortDto> eventsShort = events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+
+        return CompilationMapper.toCompilationDto(compilation, eventsShort);
     }
 
     @Override
@@ -50,13 +56,21 @@ public class CompilationServiceImpl implements CompilationService {
         if (updateComp.getTitle() != null && !updateComp.getTitle().isBlank()) {
             compilation.setTitle(updateComp.getTitle());
         }
-        if (updateComp.getPinned() != null) {
-            compilation.setPinned(updateComp.getPinned());
-        }
+
+        compilation.setPinned(updateComp.isPinned());
+
+        List<EventShortDto> updateEvents = new ArrayList<>();
         if (updateComp.getEvents() != null) {
             compilation.setEvents(eventRepository.findAllByIdIn(updateComp.getEvents()));
+            updateEvents = eventRepository.findAllByIdIn(updateComp.getEvents()).stream()
+                    .map(EventMapper::toEventShortDto)
+                    .collect(Collectors.toList());
         }
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        updateEvents = compilation.getEvents().stream()
+                .map(EventMapper::toEventShortDto)
+                .collect(Collectors.toList());
+
+        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation), updateEvents);
     }
 
     @Override
