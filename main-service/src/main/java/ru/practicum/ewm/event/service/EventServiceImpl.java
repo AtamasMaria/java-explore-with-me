@@ -136,7 +136,7 @@ public class EventServiceImpl implements EventService {
         if (onlyAvailable) {
             if (sort == null) {
                 events = eventRepository.getAvailableEventsWithFiltersDateSorted(
-                        text, EventState.PUBLISHED, categories, paid, start, end, page);
+                        text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
             } else {
                 switch (EventSort.valueOf(sort)) {
                     case EVENT_DATE:
