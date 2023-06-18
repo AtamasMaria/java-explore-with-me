@@ -125,7 +125,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid,
+    public Collection<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid,
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                              boolean onlyAvailable, String sort, Pageable page, HttpServletRequest request) {
         checkStartAndEnd(rangeStart, rangeEnd);
@@ -146,7 +146,7 @@ public class EventServiceImpl implements EventService {
                         statisticService.addView(request);
                         Map<Long, Long> view = statisticService.getStatsEvents(events);
                         return events.stream()
-                                .map(EventMapper::toEventDto)
+                                .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view.get(e.getId())))
                                 .collect(Collectors.toList());
                     case VIEWS:
@@ -155,9 +155,9 @@ public class EventServiceImpl implements EventService {
                         statisticService.addView(request);
                         Map<Long, Long> view1 = statisticService.getStatsEvents(events);
                         return events.stream()
-                                .map(EventMapper::toEventDto)
+                                .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view1.get(e.getId())))
-                                .sorted(Comparator.comparing(EventDto::getViews))
+                                .sorted(Comparator.comparing(EventShortDto::getViews))
                                 .collect(Collectors.toList());
                 }
             }
@@ -173,7 +173,7 @@ public class EventServiceImpl implements EventService {
                         statisticService.addView(request);
                         Map<Long, Long> view = statisticService.getStatsEvents(events);
                         return events.stream()
-                                .map(EventMapper::toEventDto)
+                                .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view.get(e.getId())))
                                 .collect(Collectors.toList());
                     case VIEWS:
@@ -182,9 +182,9 @@ public class EventServiceImpl implements EventService {
                         statisticService.addView(request);
                         Map<Long, Long> view1 = statisticService.getStatsEvents(events);
                         return events.stream()
-                                .map(EventMapper::toEventDto)
+                                .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view1.get(e.getId())))
-                                .sorted(Comparator.comparing(EventDto::getViews))
+                                .sorted(Comparator.comparing(EventShortDto::getViews))
                                 .collect(Collectors.toList());
                 }
             }
@@ -192,7 +192,7 @@ public class EventServiceImpl implements EventService {
         statisticService.addView(request);
         Map<Long, Long> view = statisticService.getStatsEvents(events);
         return events.stream()
-                .map(EventMapper::toEventDto)
+                .map(EventMapper::toEventShortDto)
                 .peek(e -> e.setViews(view.get(e.getId())))
                 .collect(Collectors.toList());
     }
@@ -394,7 +394,7 @@ public class EventServiceImpl implements EventService {
 
     private static void checkEventStatePublished(Event event) {
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new NotFoundException(String.format("Событие еще не опубликованно."));
+            throw new NotFoundException("Событие еще не опубликованно.");
         }
     }
 
