@@ -131,6 +131,12 @@ public class EventServiceImpl implements EventService {
                 throw new ValidationException("Дата окончания события задана позже даты старта, " + "а так же дата окончания не может быть до настоящего времени.");
             }
         }
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now().minusYears(5);
+        }
+        if (rangeEnd == null) {
+            rangeEnd = LocalDateTime.now();
+        }
 
         List<Event> events = new ArrayList<>();
 
