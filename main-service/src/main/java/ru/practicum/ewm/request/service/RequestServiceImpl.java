@@ -44,9 +44,8 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Событие еще не было опубликовано.");
         }
         if (event.getParticipantLimit() != 0) {
-            int confirmedRequests = getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId));
-            if (event.getParticipantLimit() <= confirmedRequests) {
-                throw new ConflictException("Лимит участников превышен.");
+            if (event.getParticipantLimit() == event.getConfirmedRequests()) {
+                throw new ConflictException("Лимит участников достигнут. Больше нет возможности добавить запрос.");
             }
         }
         Request request = new Request();
@@ -87,15 +86,6 @@ public class RequestServiceImpl implements RequestService {
                 .stream()
                 .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
-    }
-
-    public static int getConfirmedRequestsCount(List<Request> requests) {
-        if (requests.isEmpty()) {
-            return 0;
-        }
-        return (int) requests.stream()
-                .filter(r -> r.getStatus().equals(RequestStatus.CONFIRMED))
-                .count();
     }
 
     private Request getRequestById(Long requestId) {

@@ -20,33 +20,84 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
-    @Query("SELECT e FROM Event as e " +
-            "WHERE (:users IS NULL OR e.initiator.id IN :users) " +
-            "AND (:categories IS NULL OR e.category.id IN :categories) " +
-            "AND (:states IS NULL OR e.state IN :states) " +
-            "AND (e.eventDate IS NULL OR e.eventDate >= :start ) " +
-            "AND (e.eventDate IS NULL OR e.eventDate <= :end )")
-    List<Event> findAllByAdmin(@Param("users") List<Long> users,
-                               @Param("categories") List<Long> categories,
-                               @Param("states") List<EventState> states,
-                               @Param("start") LocalDateTime rangeStart,
-                               @Param("end") LocalDateTime rangeEnd,
-                               Pageable pageable);
+    @Query("select e from Event e " +
+            "where (:users is null or e.initiator.id in :users) " +
+            "and (:states is null or e.state in :states) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd)")
+    List<Event> getEventsWithUsersStatesCategoriesDateTime(@Param("users") List<Long> users,
+                                                           @Param("states") List<EventState> states,
+                                                           @Param("categories") List<Long> categories,
+                                                           @Param("rangeStart") LocalDateTime rangeStart,
+                                                           @Param("rangeEnd") LocalDateTime rangeEnd,
+                                                           Pageable pageable);
 
-    @Query("SELECT e FROM Event as e " +
-            "WHERE (:categories IS NULL OR e.category.id IN :categories) " +
-            "AND (:paid IS NULL OR e.paid = :paid) " +
-            "AND (:state IS NULL OR e.state = :state) " +
-            "AND (e.eventDate IS NULL OR e.eventDate >= :start )" +
-            "AND (e.eventDate IS NULL OR e.eventDate <= :end )" +
-            "AND ((:text IS NULL) " +
-            "       OR LOWER(e.description) LIKE LOWER(CONCAT('%',:text,'%')) " +
-            "       OR LOWER(e.annotation) LIKE LOWER(CONCAT('%',:text,'%'))) ")
-    List<Event> findAllByUser(@Param("categories") List<Long> categories,
-                              @Param("paid") Boolean paid,
-                              @Param("state") EventState state,
-                              @Param("start") LocalDateTime rangeStart,
-                              @Param("end") LocalDateTime rangeEnd,
-                              @Param("text") String text,
-                              Pageable pageable);
+    @Query("select e from Event e " +
+            "where ((:text is null or LOWER(e.annotation) like LOWER(concat('%', :text, '%'))) " +
+            "or (:text is null or LOWER(e.description) like LOWER(concat('%', :text, '%')))) " +
+            "and (:state is null or e.state = :state) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and (:paid is null or e.paid = :paid) " +
+            "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd)" +
+            "and (e.participantLimit > e.confirmedRequests)" +
+            "order by e.eventDate desc")
+    List<Event> getAvailableEventsWithFiltersDateSorted(@Param("text") String text,
+                                                        @Param("state") EventState state,
+                                                        @Param("categories") List<Long> categories,
+                                                        @Param("paid") Boolean paid,
+                                                        @Param("rangeStart") LocalDateTime rangeStart,
+                                                        @Param("rangeEnd") LocalDateTime rangeEnd,
+                                                        Pageable pageable);
+
+    @Query("select e from Event e " +
+            "where ((:text is null or LOWER(e.annotation) like LOWER(concat('%', :text, '%'))) " +
+            "or (:text is null or LOWER(e.description) like LOWER(concat('%', :text, '%')))) " +
+            "and (:state is null or e.state = :state) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and (:paid is null or e.paid = :paid) " +
+            "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd)" +
+            "and (e.participantLimit > e.confirmedRequests)")
+    List<Event> getAvailableEventsWithFilters(@Param("text") String text,
+                                              @Param("state") EventState state,
+                                              @Param("categories") List<Long> categories,
+                                              @Param("paid") Boolean paid,
+                                              @Param("rangeStart") LocalDateTime rangeStart,
+                                              @Param("rangeEnd") LocalDateTime rangeEnd,
+                                              Pageable pageable);
+
+    @Query("select e from Event e " +
+            "where ((:text is null or LOWER(e.annotation) like LOWER(concat('%', :text, '%'))) " +
+            "or (:text is null or LOWER(e.description) like LOWER(concat('%', :text, '%')))) " +
+            "and (:state is null or e.state = :state) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and (:paid is null or e.paid = :paid) " +
+            "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd) " +
+            "order by e.eventDate desc")
+    List<Event> getAllEventsWithFiltersDateSorted(@Param("text") String text,
+                                                  @Param("state") EventState state,
+                                                  @Param("categories") List<Long> categories,
+                                                  @Param("paid") Boolean paid,
+                                                  @Param("rangeStart") LocalDateTime rangeStart,
+                                                  @Param("rangeEnd") LocalDateTime rangeEnd,
+                                                  Pageable pageable);
+
+    @Query("select e from Event e " +
+            "where ((:text is null or LOWER(e.annotation) like LOWER(concat('%', :text, '%'))) " +
+            "or (:text is null or LOWER(e.description) like LOWER(concat('%', :text, '%')))) " +
+            "and (:state is null or e.state = :state) " +
+            "and (:categories is null or e.category.id in :categories) " +
+            "and (:paid is null or e.paid = :paid) " +
+            "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd)")
+    List<Event> getAllEventsWithFilters(@Param("text") String text,
+                                        @Param("state") EventState state,
+                                        @Param("categories") List<Long> categories,
+                                        @Param("paid") Boolean paid,
+                                        @Param("rangeStart") LocalDateTime rangeStart,
+                                        @Param("rangeEnd") LocalDateTime rangeEnd,
+                                        Pageable pageable);
 }
