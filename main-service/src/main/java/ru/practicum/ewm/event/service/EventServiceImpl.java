@@ -61,8 +61,10 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = eventRepository.getEventsWithUsersStatesCategoriesDateTime(
                 users, states1, categories, start, end, page);
+        Map<Long, Long> views = statisticService.getStatsEvents(events);
         return events.stream()
                 .map(EventMapper::toEventDto)
+                .peek(e -> e.setViews(views.get(e.getId())))
                 .collect(Collectors.toList());
     }
 
