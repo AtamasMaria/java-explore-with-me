@@ -30,9 +30,9 @@ public class PublicEventController {
                                                   @RequestParam(required = false) List<Long> categories,
                                                   @RequestParam(required = false) Boolean paid,
                                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                                  LocalDateTime rangeStart,
+                                             LocalDateTime rangeStart,
                                                   @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-                                                  LocalDateTime rangeEnd,
+                                             LocalDateTime rangeEnd,
                                                   @RequestParam(required = false) boolean onlyAvailable,
                                                   @RequestParam(required = false) String sort,
                                                   @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
