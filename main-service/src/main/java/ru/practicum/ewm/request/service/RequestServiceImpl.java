@@ -45,7 +45,9 @@ public class RequestServiceImpl implements RequestService {
         }
         if (event.getParticipantLimit() != 0) {
             int confirmedRequests = getConfirmedRequestsCount(requestRepository.findAllByEventId(eventId));
-            checkParticipationLimit((long) confirmedRequests, event.getParticipantLimit());
+            if (event.getParticipantLimit() <= confirmedRequests) {
+                throw new ConflictException("Лимит участников превышен.");
+            }
         }
         Request request = new Request();
 
@@ -88,10 +90,12 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public static int getConfirmedRequestsCount(List<Request> requests) {
-        if (requests == null || requests.isEmpty()) {
+        if (requests.isEmpty()) {
             return 0;
         }
-        return (int) requests.stream().filter(r -> r.getStatus().equals(RequestStatus.CONFIRMED)).count();
+        return (int) requests.stream()
+                .filter(r -> r.getStatus().equals(RequestStatus.CONFIRMED))
+                .count();
     }
 
     private Request getRequestById(Long requestId) {
@@ -107,13 +111,5 @@ public class RequestServiceImpl implements RequestService {
     private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Мероприятие с id={} не найдено.", eventId)));
-    }
-
-    private static void checkParticipationLimit(Long confirmedRequests, Long participationLimit) {
-        Long requests = confirmedRequests + 1;
-
-        if (requests > participationLimit) {
-            throw new ConflictException("Лимит участников в мероприятии превышен.");
-        }
     }
 }

@@ -22,12 +22,11 @@ public class EventMapper {
                 .eventDate(newEventDto.getEventDate())
                 .initiator(user)
                 .location(newEventDto.getLocation())
-                .paid(newEventDto.getPaid() != null ? newEventDto.getPaid() : false)
-                .participantLimit(newEventDto.getParticipantLimit() != null ? newEventDto.getParticipantLimit() : 0)
+                .paid(newEventDto.isPaid())
+                .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
                 .state(EventState.PENDING)
                 .title(newEventDto.getTitle())
-                .views(0L)
                 .build();
     }
 
@@ -35,18 +34,20 @@ public class EventMapper {
         return EventDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
+                .confirmedRequests(event.getConfirmedRequests())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .createdOn(event.getCreatedOn())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .location(LocationMapper.toLocationDto(event.getLocation()))
-                .paid(event.getPaid() != null ? event.getPaid() : false)
+                .paid(event.isPaid())
                 .participantLimit(event.getParticipantLimit())
-                .publishedOn(event.getPublishedOn())
+                .publishedOn((event.getPublishedOn() != null) ? event.getPublishedOn() : null)
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())
+                .views(0L)
                 .build();
     }
 
@@ -58,9 +59,8 @@ public class EventMapper {
                 .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
-                .paid(event.getPaid())
+                .paid(event.isPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
                 .build();
     }
 

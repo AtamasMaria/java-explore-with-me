@@ -25,7 +25,7 @@ public class Event {
     @JoinColumn(name = "category_id")
     private Category category;
     @Column(name = "confirmed_requests")
-    private Long confirmedRequests;
+    private long confirmedRequests;
     @Column(name = "created_on")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdOn;
@@ -38,9 +38,9 @@ public class Event {
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "location_id")
     private Location location;
-    private Boolean paid;
+    private boolean paid;
     @Column(name = "participant_limit")
-    private Long participantLimit;
+    private long participantLimit;
     @Column(name = "published_on")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishedOn;
@@ -49,5 +49,4 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
     private String title;
-    private Long views;
 }

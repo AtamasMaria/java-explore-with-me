@@ -10,22 +10,22 @@ import ru.practicum.ewm.event.model.enums.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByCategory(Category category);
 
-    List<Event> findAllByIdIn(List<Long> eventIds);
+    Set<Event> findAllByIdIn(Set<Long> eventIds);
 
     List<Event> findAllByInitiatorId(Long initiatorId, Pageable pageable);
 
     @Query("SELECT e FROM Event as e " +
-            "JOIN FETCH e.initiator " +
-            "JOIN FETCH e.category " +
-            "WHERE (:users IS NULL OR e.initiator.id IN (:users)) " +
+            "WHERE (:users IS NULL OR e.initiator.id IN :users) " +
             "AND (:categories IS NULL OR e.category.id IN :categories) " +
             "AND (:states IS NULL OR e.state IN :states) " +
-            "AND (e.eventDate BETWEEN :start AND :end)")
+            "AND (e.eventDate IS NULL OR e.eventDate >= :start ) " +
+            "AND (e.eventDate IS NULL OR e.eventDate <= :end )")
     List<Event> findAllByAdmin(@Param("users") List<Long> users,
                                @Param("categories") List<Long> categories,
                                @Param("states") List<EventState> states,
@@ -34,13 +34,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                Pageable pageable);
 
     @Query("SELECT e FROM Event as e " +
-            "JOIN FETCH e.initiator " +
-            "JOIN FETCH e.category " +
             "WHERE (:categories IS NULL OR e.category.id IN :categories) " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
             "AND (:state IS NULL OR e.state = :state) " +
-            "AND (e.eventDate BETWEEN :start AND :end) " +
-            "AND (e.confirmedRequests < e.participantLimit) " +
+            "AND (e.eventDate IS NULL OR e.eventDate >= :start )" +
+            "AND (e.eventDate IS NULL OR e.eventDate <= :end )" +
             "AND ((:text IS NULL) " +
             "       OR LOWER(e.description) LIKE LOWER(CONCAT('%',:text,'%')) " +
             "       OR LOWER(e.annotation) LIKE LOWER(CONCAT('%',:text,'%'))) ")
