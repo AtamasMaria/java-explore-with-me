@@ -132,26 +132,32 @@ public class EventServiceImpl implements EventService {
         checkStartAndEnd(rangeStart, rangeEnd);
 
         List<Event> events = new ArrayList<>();
-        checkStartAndEnd(rangeStart, rangeEnd);
+
         if (onlyAvailable) {
             if (sort == null) {
                 events = eventRepository.getAvailableEventsWithFiltersDateSorted(
                         text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
+
             } else {
+
                 switch (EventSort.valueOf(sort)) {
                     case EVENT_DATE:
                         events = eventRepository.getAvailableEventsWithFiltersDateSorted(
                                 text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         statisticService.addView(request);
+                        Map<Long, Long> view = statisticService.getStatsEvents(events);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
+                                .peek(e -> e.setViews(view.get(e.getId())))
                                 .collect(Collectors.toList());
                     case VIEWS:
                         events = eventRepository.getAvailableEventsWithFilters(
                                 text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         statisticService.addView(request);
+                        Map<Long, Long> view1 = statisticService.getStatsEvents(events);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
+                                .peek(e -> e.setViews(view1.get(e.getId())))
                                 .sorted(Comparator.comparing(EventShortDto::getViews))
                                 .collect(Collectors.toList());
                 }
@@ -166,24 +172,29 @@ public class EventServiceImpl implements EventService {
                         events = eventRepository.getAllEventsWithFiltersDateSorted(
                                 text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         statisticService.addView(request);
+                        Map<Long, Long> view = statisticService.getStatsEvents(events);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
+                                .peek(e -> e.setViews(view.get(e.getId())))
                                 .collect(Collectors.toList());
                     case VIEWS:
                         events = eventRepository.getAllEventsWithFilters(
                                 text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
+                        statisticService.addView(request);
+                        Map<Long, Long> view1 = statisticService.getStatsEvents(events);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
+                                .peek(e -> e.setViews(view1.get(e.getId())))
                                 .sorted(Comparator.comparing(EventShortDto::getViews))
                                 .collect(Collectors.toList());
                 }
             }
         }
         statisticService.addView(request);
-        Map<Long, Long> views = statisticService.getStatsEvents(events);
+        Map<Long, Long> view = statisticService.getStatsEvents(events);
         return events.stream()
                 .map(EventMapper::toEventShortDto)
-                .peek(e -> e.setViews(views.get(e.getId())))
+                .peek(e -> e.setViews(view.get(e.getId())))
                 .collect(Collectors.toList());
     }
 

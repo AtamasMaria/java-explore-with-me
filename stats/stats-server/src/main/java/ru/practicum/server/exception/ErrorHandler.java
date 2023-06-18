@@ -15,4 +15,10 @@ public class ErrorHandler {
         log.warn("Unknown error", e);
         return ErrorMessage.builder().error(e.getMessage()).build();
     }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleDateExceptional(final DataException e) {
+        log.warn("Ошибка времени", e);
+        return ErrorMessage.builder().error(e.getMessage()).build();
+    }
 }
