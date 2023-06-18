@@ -131,34 +131,25 @@ public class EventServiceImpl implements EventService {
                 throw new ValidationException("Дата окончания события задана позже даты старта, " + "а так же дата окончания не может быть до настоящего времени.");
             }
         }
-        LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = LocalDateTime.now().plusYears(1);
-
-        if (rangeStart == null) {
-            start = LocalDateTime.now().minusYears(5);
-        }
-        if (rangeEnd == null) {
-            end = LocalDateTime.now();
-        }
 
         List<Event> events = new ArrayList<>();
 
         if (onlyAvailable) {
             if (sort == null) {
                 events = eventRepository.getAvailableEventsWithFiltersDateSorted(
-                        text, EventState.PUBLISHED, categories, paid, start, end, page);
+                        text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
             } else {
                 switch (EventSort.valueOf(sort)) {
                     case EVENT_DATE:
                         events = eventRepository.getAvailableEventsWithFiltersDateSorted(
-                                text, EventState.PUBLISHED, categories, paid, start, end, page);
+                                text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         statisticService.addView(request);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .collect(Collectors.toList());
                     case VIEWS:
                         events = eventRepository.getAvailableEventsWithFilters(
-                                text, EventState.PUBLISHED, categories, paid, start, end, page);
+                                text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         statisticService.addView(request);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
@@ -169,19 +160,19 @@ public class EventServiceImpl implements EventService {
         } else {
             if (sort == null) {
                 events = eventRepository.getAllEventsWithFiltersDateSorted(
-                        text, EventState.PUBLISHED, categories, paid, start, end, page);
+                        text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
             } else {
                 switch (EventSort.valueOf(sort)) {
                     case EVENT_DATE:
                         events = eventRepository.getAllEventsWithFiltersDateSorted(
-                                text, EventState.PUBLISHED, categories, paid, start, end, page);
+                                text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         statisticService.addView(request);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .collect(Collectors.toList());
                     case VIEWS:
                         events = eventRepository.getAllEventsWithFilters(
-                                text, EventState.PUBLISHED, categories, paid, start, end, page);
+                                text, EventState.PUBLISHED, categories, paid, rangeStart, rangeEnd, page);
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .sorted(Comparator.comparing(EventShortDto::getViews))
@@ -333,6 +324,23 @@ public class EventServiceImpl implements EventService {
         return eventRequestStatusUpdateResult;
     }
 
+    private List<EventShortDto> getSortedEventsShortDto(List<Event> events, String sort) {
+        Map<Long, Long> viewsMap = statisticService.getStatsEvents(events);
+
+        if (sort.equals(EventSort.VIEWS.toString())) {
+            return events.stream()
+                    .map(EventMapper::toEventShortDto)
+                    .peek(e -> e.setViews(viewsMap.get(e.getId())))
+                    .sorted(Comparator.comparing(EventShortDto::getViews).reversed())
+                    .collect(toList());
+        }
+        return events.stream()
+                .map(EventMapper::toEventShortDto)
+                .peek(e -> e.setViews(viewsMap.get(e.getId())))
+                .sorted(Comparator.comparing(EventShortDto::getEventDate).reversed())
+                .collect(toList());
+    }
+
     private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Событие с id={} не найдено", eventId)));
@@ -346,6 +354,19 @@ public class EventServiceImpl implements EventService {
     private Category getCategoryById(Long catId) {
         return categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException(String.format("Категория с id={} не найдена", catId)));
+    }
+
+    private List<Event> selectOnlyAvailableEvents(List<Event> events) {
+        List<Event> onlyAvailableEvents = new ArrayList<>();
+
+        for (Event event : events) {
+            Long participantLimit = event.getParticipantLimit();
+
+            if (event.getConfirmedRequests() < participantLimit) {
+                onlyAvailableEvents.add(event);
+            }
+        }
+        return onlyAvailableEvents;
     }
 
     private void fillEventState(Event event, EventStateAction stateAction) {

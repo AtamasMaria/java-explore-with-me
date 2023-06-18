@@ -40,8 +40,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and (:categories is null or e.category.id in :categories) " +
             "and (:paid is null or e.paid = :paid) " +
             "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
-            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd)" +
-            "and (e.participantLimit > e.confirmedRequests)" +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd) " +
+            "and (e.participantLimit > e.confirmedRequests) " +
             "order by e.eventDate desc")
     List<Event> getAvailableEventsWithFiltersDateSorted(@Param("text") String text,
                                                         @Param("state") EventState state,
@@ -58,7 +58,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and (:categories is null or e.category.id in :categories) " +
             "and (:paid is null or e.paid = :paid) " +
             "and (cast(:rangeStart as java.time.LocalDateTime) is null or e.eventDate >= :rangeStart) " +
-            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd)" +
+            "and (cast(:rangeEnd as java.time.LocalDateTime) is null or e.eventDate <= :rangeEnd) " +
             "and (e.participantLimit > e.confirmedRequests)")
     List<Event> getAvailableEventsWithFilters(@Param("text") String text,
                                               @Param("state") EventState state,
