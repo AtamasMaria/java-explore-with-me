@@ -41,7 +41,7 @@ public class StatisticServiceImpl implements StatisticService {
                 .map(Event::getId)
                 .collect(Collectors.toList());
 
-        LocalDateTime start = events.get(0).getCreatedOn();
+        LocalDateTime start = LocalDateTime.now().minusYears(100);
         LocalDateTime end = LocalDateTime.now();
         String eventsUri = "/events/";
         List<String> uris = ids.stream()
