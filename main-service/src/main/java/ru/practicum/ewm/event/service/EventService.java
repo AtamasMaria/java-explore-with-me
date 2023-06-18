@@ -19,7 +19,7 @@ public interface EventService {
 
     EventDto getFullEvent(Long id, HttpServletRequest request);
 
-    Collection<EventShortDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+    Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                       LocalDateTime rangeEnd, boolean onlyAvailable, String sort,
                                       Pageable page, HttpServletRequest request);
 
