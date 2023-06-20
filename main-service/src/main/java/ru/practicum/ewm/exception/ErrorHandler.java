@@ -10,12 +10,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -25,7 +23,7 @@ public class ErrorHandler {
                 .message(e.getMessage())
                 .reason(e.toString())
                 .status("BAD_REQUEST")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -37,7 +35,7 @@ public class ErrorHandler {
                 .message(e.getMessage())
                 .reason(e.toString())
                 .status("BAD_REQUEST")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -49,7 +47,7 @@ public class ErrorHandler {
                 .message(e.getMessage())
                 .reason(e.toString())
                 .status("NOT_FOUND")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -61,7 +59,7 @@ public class ErrorHandler {
                 .message(e.getMessage())
                 .reason(e.toString())
                 .status("BAD_REQUEST")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -73,7 +71,7 @@ public class ErrorHandler {
                 .message(e.getMessage())
                 .reason(e.toString())
                 .status("CONFLICT")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -85,7 +83,7 @@ public class ErrorHandler {
                 .message(e.getMessage())
                 .reason(e.toString())
                 .status("CONFLICT")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -97,7 +95,7 @@ public class ErrorHandler {
                 .message(throwable.getMessage())
                 .reason(throwable.toString())
                 .status("BAD_REQUEST")
-                .timestamp(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }

@@ -31,8 +31,8 @@ public class PrivateEventController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEventsUser(@PathVariable @Positive Long userId,
-                                             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero int from,
-                                             @RequestParam(required = false, defaultValue = "10") @Positive int size) {
+                                             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                             @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("GET-Получение событий, добавленных текущим пользователем.");
         PageRequest page = PageRequest.of(from, size);
         return eventService.getEventUser(userId, page);

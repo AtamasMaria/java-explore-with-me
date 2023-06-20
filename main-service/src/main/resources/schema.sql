@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS events
     title VARCHAR(120) NOT NULL,
     annotation VARCHAR(2000) NOT NULL,
     category_id BIGINT NOT NULL,
-    confirmed_requests BIGINT,
     description VARCHAR(7000) NOT NULL,
     event_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     initiator_id BIGINT NOT NULL,

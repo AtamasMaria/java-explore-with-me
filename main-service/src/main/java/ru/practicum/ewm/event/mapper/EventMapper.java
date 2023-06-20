@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.dto.EventDto;
@@ -7,13 +8,15 @@ import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.enums.EventState;
+import ru.practicum.ewm.location.mapper.LocationMapper;
 import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
 import java.time.LocalDateTime;
 
+@UtilityClass
 public class EventMapper {
-    public static Event toEvent(NewEventDto newEventDto, Category category, User user) {
+    public Event toEvent(NewEventDto newEventDto, Category category, User user) {
         return Event.builder()
                 .annotation(newEventDto.getAnnotation())
                 .category(category)
@@ -21,20 +24,19 @@ public class EventMapper {
                 .createdOn(LocalDateTime.now())
                 .eventDate(newEventDto.getEventDate())
                 .initiator(user)
-                .location(newEventDto.getLocation())
+                .location(LocationMapper.toLocation(newEventDto.getLocation()))
                 .paid(newEventDto.isPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
-                .requestModeration(newEventDto.getRequestModeration() != null ? newEventDto.getRequestModeration() : true)
+                .requestModeration(newEventDto.isRequestModeration())
                 .state(EventState.PENDING)
                 .title(newEventDto.getTitle())
                 .build();
     }
 
-    public static EventDto toEventDto(Event event) {
+    public EventDto toEventDto(Event event) {
         return EventDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
-                .confirmedRequests(event.getConfirmedRequests())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .createdOn(event.getCreatedOn())
                 .description(event.getDescription())
@@ -51,12 +53,11 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventShortDto toEventShortDto(Event event) {
+    public EventShortDto toEventShortDto(Event event) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate())
                 .initiator(UserMapper.toUserShortDto(event.getInitiator()))
                 .paid(event.isPaid())

@@ -14,7 +14,6 @@ import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void delete(long catId) {
         Category category = getById(catId);
-        if (!eventRepository.findByCategory(category).isEmpty()) {
+        if (eventRepository.existsByCategory(category)) {
             throw new ConflictException("Нельзя удалить категорию. Существуют события, связанные с этой категорией.");
         }
         categoryRepository.deleteById(catId);
@@ -74,7 +73,10 @@ public class CategoryServiceImpl implements CategoryService {
     private Category categoryToUpdate(NewCategoryDto categoryDto, Long id) {
         Category category = categoryRepository.getReferenceById(id);
 
-        Optional.ofNullable(categoryDto.getName()).ifPresent(category::setName);
+        if (!categoryDto.getName().isBlank() || categoryDto.getName() != null) {
+            category.setName(categoryDto.getName());
+        }
+
         return category;
     }
 }

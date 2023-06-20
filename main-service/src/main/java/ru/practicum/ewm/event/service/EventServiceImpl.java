@@ -9,7 +9,7 @@ import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.model.Location;
+import ru.practicum.ewm.location.model.Location;
 import ru.practicum.ewm.event.model.enums.EventSort;
 import ru.practicum.ewm.event.model.enums.EventState;
 import ru.practicum.ewm.event.model.enums.EventStateAction;
@@ -66,6 +66,7 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(EventMapper::toEventDto)
                 .peek(e -> e.setViews(views.get(e.getId())))
+                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                 .collect(Collectors.toList());
     }
 
@@ -122,6 +123,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statisticService.getStatsEvents(List.of(event));
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setViews(views.getOrDefault(event.getId(), 0L));
+        eventDto.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
         return eventDto;
     }
 
@@ -147,6 +149,7 @@ public class EventServiceImpl implements EventService {
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view.get(e.getId())))
+                                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                                 .collect(Collectors.toList());
                     case VIEWS:
                         events = eventRepository.getAvailableEventsWithFilters(
@@ -156,6 +159,7 @@ public class EventServiceImpl implements EventService {
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view1.get(e.getId())))
+                                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                                 .sorted(Comparator.comparing(EventShortDto::getViews))
                                 .collect(Collectors.toList());
                 }
@@ -174,6 +178,7 @@ public class EventServiceImpl implements EventService {
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view.get(e.getId())))
+                                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                                 .collect(Collectors.toList());
                     case VIEWS:
                         events = eventRepository.getAllEventsWithFilters(
@@ -183,6 +188,7 @@ public class EventServiceImpl implements EventService {
                         return events.stream()
                                 .map(EventMapper::toEventShortDto)
                                 .peek(e -> e.setViews(view1.get(e.getId())))
+                                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                                 .sorted(Comparator.comparing(EventShortDto::getViews))
                                 .collect(Collectors.toList());
                 }
@@ -193,6 +199,7 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(EventMapper::toEventShortDto)
                 .peek(e -> e.setViews(view.get(e.getId())))
+                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                 .collect(Collectors.toList());
     }
 
@@ -204,6 +211,7 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(EventMapper::toEventShortDto)
                 .peek(e -> e.setViews(views.getOrDefault(e.getId(), 0L)))
+                .peek(e -> e.setConfirmedRequests(requestRepository.countByEventIdAndStatus(e.getId(), RequestStatus.CONFIRMED)))
                 .collect(toList());
     }
 
@@ -219,7 +227,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statisticService.getStatsEvents(List.of(event));
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setViews(views.getOrDefault(event.getId(), 0L));
-
+        eventDto.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
         return eventDto;
     }
 
@@ -230,6 +238,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statisticService.getStatsEvents(List.of(event));
         EventDto eventDto = EventMapper.toEventDto(event);
         eventDto.setViews(views.getOrDefault(event.getId(), 0L));
+        eventDto.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
         return eventDto;
     }
 
@@ -283,6 +292,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statisticService.getStatsEvents(List.of(event));
         EventDto eventDto = EventMapper.toEventDto(eventRepository.save(event));
         eventDto.setViews(views.getOrDefault(event.getId(), 0L));
+        eventDto.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
 
         return eventDto;
     }
@@ -303,7 +313,7 @@ public class EventServiceImpl implements EventService {
         Event event = getEventById(eventId);
         List<Request> requestsEvent = requestRepository.findAllByEventId(eventId);
 
-        if (event.getParticipantLimit() <= event.getConfirmedRequests()) {
+        if (event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED)) {
             throw new ConflictException("Превышен лимит участников мероприятия.");
         }
 
@@ -407,7 +417,6 @@ public class EventServiceImpl implements EventService {
             EventRequestStatusUpdateResult eventRequestStatusUpdateResult, Request request, Event event) {
         if (request.getStatus().equals(RequestStatus.CONFIRMED)) {
             eventRequestStatusUpdateResult.getConfirmedRequests().add(RequestMapper.toParticipationRequestDto(request));
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         } else if (request.getStatus().equals(RequestStatus.REJECTED)) {
             eventRequestStatusUpdateResult.getRejectedRequests().add(RequestMapper.toParticipationRequestDto(request));
         }

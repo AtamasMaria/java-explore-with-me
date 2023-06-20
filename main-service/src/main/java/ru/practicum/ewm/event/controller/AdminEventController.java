@@ -34,8 +34,8 @@ public class AdminEventController {
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                           @RequestParam(required = false)
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                          @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                          @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
+                                          @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                          @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("GET-Поиск событий.");
         PageRequest page = PageRequest.of(from, size);
         return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, page);
