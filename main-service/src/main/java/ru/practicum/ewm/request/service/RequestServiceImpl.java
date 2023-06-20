@@ -48,7 +48,7 @@ public class RequestServiceImpl implements RequestService {
                 throw new ConflictException("Лимит участников достигнут. Больше нет возможности добавить запрос.");
             }
         }
-        Request request;
+        Request request = new Request();
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request = Request.builder()

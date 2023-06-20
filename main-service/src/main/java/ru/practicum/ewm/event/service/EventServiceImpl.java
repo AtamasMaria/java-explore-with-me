@@ -56,8 +56,11 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
+        LocalDateTime start = rangeStart != null ? rangeStart : null;
+        LocalDateTime end = rangeEnd != null ? rangeEnd : null;
+
         List<Event> events = eventRepository.getEventsWithUsersStatesCategoriesDateTime(
-                users, states1, categories, rangeStart, rangeEnd, page);
+                users, states1, categories, start, end, page);
 
         Map<Long, Long> views = statisticService.getStatsEvents(events);
 
