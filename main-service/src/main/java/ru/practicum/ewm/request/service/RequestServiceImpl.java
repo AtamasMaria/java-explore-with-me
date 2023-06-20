@@ -44,7 +44,7 @@ public class RequestServiceImpl implements RequestService {
             throw new ConflictException("Событие еще не было опубликовано.");
         }
         if (event.getParticipantLimit() != 0) {
-            if (event.getParticipantLimit() == event.getConfirmedRequests()) {
+            if (event.getParticipantLimit() <= requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED)) {
                 throw new ConflictException("Лимит участников достигнут. Больше нет возможности добавить запрос.");
             }
         }
@@ -57,7 +57,6 @@ public class RequestServiceImpl implements RequestService {
                     .event(event)
                     .status(RequestStatus.CONFIRMED)
                     .build();
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         } else {
             request = Request.builder()

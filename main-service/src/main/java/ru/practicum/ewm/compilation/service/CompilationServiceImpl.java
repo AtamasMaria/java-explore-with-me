@@ -16,7 +16,6 @@ import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,20 +56,15 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setTitle(updateComp.getTitle());
         }
 
-        compilation.setPinned(updateComp.isPinned());
+        if (updateComp.getPinned() != null) {
+            compilation.setPinned(updateComp.getPinned());
+        }
 
-        List<EventShortDto> updateEvents = new ArrayList<>();
         if (updateComp.getEvents() != null) {
             compilation.setEvents(eventRepository.findAllByIdIn(updateComp.getEvents()));
-            updateEvents = eventRepository.findAllByIdIn(updateComp.getEvents()).stream()
-                    .map(EventMapper::toEventShortDto)
-                    .collect(Collectors.toList());
         }
-        updateEvents = compilation.getEvents().stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
 
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation), updateEvents);
+        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 
     @Override

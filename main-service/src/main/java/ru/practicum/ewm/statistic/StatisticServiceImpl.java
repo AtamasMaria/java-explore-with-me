@@ -18,17 +18,20 @@ import java.util.stream.Collectors;
 @Service
 public class StatisticServiceImpl implements StatisticService {
     private final StatsClient statsClient;
+    private final String appName;
 
     @Autowired
-    public StatisticServiceImpl(@Value("${stats-server.url}") String url) {
+    public StatisticServiceImpl(@Value("${stats-server.url}") String url,
+                                @Value("${application.name}") String appName) {
         this.statsClient = new StatsClient(url);
+        this.appName = appName;
     }
 
 
     @Override
     public void addView(HttpServletRequest request) {
         statsClient.create(EndpointHitDto.builder()
-                .app("ewm-main")
+                .app(appName)
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
                 .timestamp(LocalDateTime.now())
@@ -41,7 +44,7 @@ public class StatisticServiceImpl implements StatisticService {
                 .map(Event::getId)
                 .collect(Collectors.toList());
 
-        LocalDateTime start = LocalDateTime.now().minusYears(100);
+        LocalDateTime start = events.get(0).getCreatedOn();
         LocalDateTime end = LocalDateTime.now();
         String eventsUri = "/events/";
         List<String> uris = ids.stream()
@@ -53,7 +56,6 @@ public class StatisticServiceImpl implements StatisticService {
         for (ViewStatsDto view : views) {
             String uri = view.getUri();
             viewsMap.put(Long.parseLong(uri.substring(eventsUri.length())), view.getHits());
-
         }
         return viewsMap;
     }
