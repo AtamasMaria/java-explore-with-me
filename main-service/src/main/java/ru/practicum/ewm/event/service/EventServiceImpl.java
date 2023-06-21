@@ -33,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -134,7 +135,13 @@ public class EventServiceImpl implements EventService {
     public Collection<EventDto> getAllEvents(String text, List<Long> categories, Boolean paid,
                                              LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                              boolean onlyAvailable, String sort, Pageable page, HttpServletRequest request) {
-        checkStartAndEnd(rangeStart, rangeEnd);
+
+        if (rangeStart != null && rangeEnd != null) {
+            if (rangeStart.isAfter(rangeEnd) || rangeEnd.isBefore(LocalDateTime.now())) {
+                throw new ValidationException("Окончание события не может быть раньше начала события, " +
+                        "а так же окончание события не может быть позже настоящего времени.");
+            }
+        }
 
         List<Event> events = new ArrayList<>();
 
@@ -430,18 +437,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void checkStartAndEnd(LocalDateTime start, LocalDateTime end) {
-        if (start == null) {
-            start = LocalDateTime.now().minusYears(10);
-        }
-        if (end == null) {
-            end = LocalDateTime.now();
-        }
-        if (start.isAfter(end)) {
-            throw new ValidationException("Окончание события не может быть раньше начала события.");
-        }
-    }
-
     private List<Long> getIds(List<EventDto> events) {
         return events.stream()
                 .map(EventDto::getId)
@@ -449,16 +444,9 @@ public class EventServiceImpl implements EventService {
     }
 
     private void setComfirmedRequests(List<EventDto> eventDtos) {
-        Map<Long, Long> eventIdToConfirmedCount = new HashMap<>();
         List<Request> requestList = requestRepository.findAllByEventIdInAndStatus(getIds(eventDtos), RequestStatus.CONFIRMED);
-        for (Request request : requestList) {
-            Long eventId = request.getEvent().getId();
-            if (!eventIdToConfirmedCount.containsKey(eventId)) {
-                eventIdToConfirmedCount.put(eventId, 1L);
-            } else {
-                eventIdToConfirmedCount.put(eventId, eventIdToConfirmedCount.get(eventId) + 1);
-            }
-        }
+        Map<Long, Long> eventIdToConfirmedCount = requestList.stream()
+                .collect(groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
 
         for (EventDto eventDto : eventDtos) {
             eventDto.setConfirmedRequests(eventIdToConfirmedCount.getOrDefault(eventDto.getId(), 0L));

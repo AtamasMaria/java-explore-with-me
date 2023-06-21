@@ -72,11 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category categoryToUpdate(NewCategoryDto categoryDto, Long id) {
         Category category = categoryRepository.getReferenceById(id);
-
-        if (!categoryDto.getName().isBlank() || categoryDto.getName() != null) {
-            category.setName(categoryDto.getName());
-        }
-
+        category.setName(categoryDto.getName());
         return category;
     }
 }

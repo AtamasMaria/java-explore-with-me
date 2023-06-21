@@ -10,6 +10,7 @@ import ru.practicum.ewm.event.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +23,9 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Autowired
     public StatisticServiceImpl(@Value("${stats-server.url}") String url,
-                                @Value("${application.name}") String appName) {
-        this.statsClient = new StatsClient(url);
+                                @Value("${application.name}") String appName,
+                                StatsClient statsClient) {
+        this.statsClient = statsClient;
         this.appName = appName;
     }
 
@@ -40,9 +42,14 @@ public class StatisticServiceImpl implements StatisticService {
 
     @Override
     public Map<Long, Long> getStatsEvents(List<Event> events) {
+        if (events == null || events.isEmpty()) {
+            return null;
+        }
         List<Long> ids = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
+
+        events.stream().sorted(Comparator.comparing(Event::getCreatedOn)).collect(Collectors.toList());
 
         LocalDateTime start = events.get(0).getCreatedOn();
         LocalDateTime end = LocalDateTime.now();

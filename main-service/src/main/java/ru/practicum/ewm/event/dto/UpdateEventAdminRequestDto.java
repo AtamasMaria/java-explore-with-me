@@ -5,6 +5,7 @@ import lombok.*;
 import ru.practicum.ewm.event.model.enums.EventStateAction;
 import ru.practicum.ewm.location.dto.LocationDto;
 
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -23,6 +24,7 @@ public class UpdateEventAdminRequestDto {
     private LocalDateTime eventDate;
     private LocationDto location;
     private Boolean paid;
+    @PositiveOrZero
     private Long participantLimit;
     private Boolean requestModeration;
     @Size(min = 3, max = 120)
