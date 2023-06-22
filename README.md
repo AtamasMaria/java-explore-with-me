@@ -1,3 +1,7 @@
 # java-explore-with-me
 Template repository for ExploreWithMe project.
-https://github.com/AtamasMaria/java-explore-with-me/pull/5
+
+[Ссылка на PR с фичей](https://github.com/AtamasMaria/java-explore-with-me/pull/5)
+
+![Схема БД ](https://github.com/AtamasMaria/java-explore-with-me/blob/main/schema.png)
+
