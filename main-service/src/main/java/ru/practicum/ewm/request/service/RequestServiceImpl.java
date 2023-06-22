@@ -88,16 +88,16 @@ public class RequestServiceImpl implements RequestService {
 
     private Request getRequestById(Long requestId) {
         return requestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException(String.format("Запрос на участие с id={} не найден.", requestId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Запрос на участие с id=%d не найден.", requestId)));
     }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id={} не найден.", userId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%d не найден.", userId)));
     }
 
     private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Мероприятие с id={} не найдено.", eventId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Мероприятие с id=%d не найдено.", eventId)));
     }
 }

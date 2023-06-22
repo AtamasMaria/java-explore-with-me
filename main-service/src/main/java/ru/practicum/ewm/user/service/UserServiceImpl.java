@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id={} не найден.",userId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%d не найден.",userId)));
         userRepository.delete(user);
     }
 

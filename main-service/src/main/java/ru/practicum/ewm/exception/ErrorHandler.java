@@ -14,6 +14,17 @@ import java.time.LocalDateTime;
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ApiError handleForbiddenException(final ForbiddenException e) {
+        log.warn("403 {}", e.getMessage());
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e.toString())
+                .status("FORBIDDEN")
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -54,6 +65,18 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleValidationException(final ValidationException e) {
+        log.warn("400 {}", e.getMessage(), e);
+        return ApiError.builder()
+                .message(e.getMessage())
+                .reason(e.toString())
+                .status("BAD_REQUEST")
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleBadRequestException(final BadRequestException e) {
         log.warn("400 {}", e.getMessage(), e);
         return ApiError.builder()
                 .message(e.getMessage())

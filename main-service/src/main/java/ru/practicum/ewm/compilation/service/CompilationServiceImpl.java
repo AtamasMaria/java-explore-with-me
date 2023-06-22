@@ -88,7 +88,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private Compilation getCompById(Long compId) {
         return compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Подборка с id={} не найдена.", compId)));
+                new NotFoundException(String.format("Подборка с id=%d не найдена.", compId)));
     }
 }
 

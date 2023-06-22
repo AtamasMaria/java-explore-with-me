@@ -9,6 +9,7 @@ import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.location.model.Location;
 import ru.practicum.ewm.event.model.enums.EventSort;
 import ru.practicum.ewm.event.model.enums.EventState;
@@ -359,17 +360,17 @@ public class EventServiceImpl implements EventService {
 
     private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Событие с id={} не найдено", eventId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Событие с id=%d не найдено", eventId)));
     }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id={} не найден", userId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%d не найден", userId)));
     }
 
     private Category getCategoryById(Long catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new NotFoundException(String.format("Категория с id={} не найдена", catId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Категория с id=%d не найдена", catId)));
     }
 
     private void fillEventState(Event event, EventStateAction stateAction) {
@@ -388,13 +389,13 @@ public class EventServiceImpl implements EventService {
                 event.setState(EventState.CANCELED);
                 break;
             default:
-                throw new ConflictException(String.format(String.format("ожидается состояние CANCEL_REVIEW or SEND_TO_REVIEW")));
+                throw new BadRequestException("Ожидается состояние CANCEL_REVIEW or SEND_TO_REVIEW");
         }
     }
 
     private void checkUserExists(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException(String.format("Пользователь с id={} не найден", userId));
+            throw new NotFoundException(String.format("Пользователь с id=%d не найден", userId));
         }
     }
 

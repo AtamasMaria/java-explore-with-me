@@ -16,7 +16,8 @@ import ru.practicum.ewm.comment.model.CommentStatus;
 import ru.practicum.ewm.comment.repository.CommentRepository;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.exception.ConflictException;
+import ru.practicum.ewm.exception.BadRequestException;
+import ru.practicum.ewm.exception.ForbiddenException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
@@ -48,7 +49,7 @@ public class CommentServiceImpl implements CommentService {
         User user = getUserById(userId);
         Comment comment = getCommentById(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
-            throw new ConflictException("Редактирование комментария доступно только автору комментария.");
+            throw new ForbiddenException("Редактирование комментария доступно только автору комментария.");
         }
         if (updateCommentUserDto.getText() != null) {
             comment.setText(updateCommentUserDto.getText());
@@ -62,7 +63,7 @@ public class CommentServiceImpl implements CommentService {
         getUserById(userId);
         Comment comment = getCommentById(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
-            throw new ConflictException("Полная информация о комментарии доступна только автору.");
+            throw new ForbiddenException("Полная информация о комментарии доступна только автору.");
         }
         return CommentMapper.toCommentDto(comment);
     }
@@ -72,7 +73,7 @@ public class CommentServiceImpl implements CommentService {
         getUserById(userId);
         Comment comment = getCommentById(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
-            throw new ConflictException("Удалить комментарий может только автор.");
+            throw new ForbiddenException("Удалить комментарий может только автор.");
         }
         commentRepository.delete(comment);
     }
@@ -116,17 +117,17 @@ public class CommentServiceImpl implements CommentService {
 
     private Comment getCommentById(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id={} не найден.", commentId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Комментарий с id=%d не найден.", commentId)));
     }
 
     private User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id={} не найден.", userId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь с id=%d не найден.", userId)));
     }
 
     private Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Мероприятие с id={} не найдено.", eventId)));
+                .orElseThrow(() -> new NotFoundException(String.format("Мероприятие с id=%d не найдено.", eventId)));
     }
 
     private void changeStatusComment(Comment comment, CommentStateAction state) {
@@ -144,7 +145,7 @@ public class CommentServiceImpl implements CommentService {
                 comment.setStatus(CommentStatus.CANCELED);
                 break;
             default:
-                throw new ConflictException(String.format(String.format("ожидается состояние CANCEL_REVIEW or SEND_TO_REVIEW")));
+                throw new BadRequestException("Неизвестное состояние.");
         }
     }
 }
