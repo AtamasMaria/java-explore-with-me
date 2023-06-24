@@ -61,12 +61,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category getById(long catId) {
         return categoryRepository.findById(catId).orElseThrow(() ->
-                new NotFoundException("Категория с id={} не найдена." + catId));
+                new NotFoundException(String.format("Категория с id=%d не найдена.", catId)));
     }
 
     private void checkCategoryExists(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new NotFoundException(String.format("Категория с id={} не найдена", id));
+            throw new NotFoundException(String.format("Категория с id=%d не найдена", id));
         }
     }
 
